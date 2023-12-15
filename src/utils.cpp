@@ -3,8 +3,11 @@
 arma::mat GenerateChannelMatrix(int TxAntNum, int RxAntNum)
 {
 
-    arma::mat HReal(RxAntNum, TxAntNum, arma::fill::randn);
-    arma::mat HImag(RxAntNum, TxAntNum, arma::fill::randn);
+    static arma::mat HReal(RxAntNum, TxAntNum);
+    static arma::mat HImag(RxAntNum, TxAntNum);
+
+    HReal.randn();  
+    HImag.randn();
 
     // multiply by 1/sqrt(2) to get unit variance
     HReal *= 1.0 / std::sqrt(2.0);
@@ -80,12 +83,14 @@ std::tuple<arma::vec, arma::mat> GenerateCons(int ModType)
 
 std::tuple<arma::uvec, arma::vec> GenerateTxSignals(int TxAntNum, arma::vec Cons)
 {
+    static arma::uvec TxIndice(2 * TxAntNum);
+    static arma::vec TxSignals(2 * TxAntNum);
 
-    int ConSize = Cons.n_elem;
+    static int ConSize = Cons.n_elem;
 
-    auto TxIndice = arma::randi<arma::uvec>(2 * TxAntNum, arma::distr_param(0, ConSize - 1));
+    TxIndice = arma::randi<arma::uvec>(2 * TxAntNum, arma::distr_param(0, ConSize - 1));
 
-    auto TxSignals = Cons.elem(TxIndice);
+    TxSignals = Cons.elem(TxIndice);
 
     return std::make_tuple(TxIndice, TxSignals);
 }
@@ -93,15 +98,18 @@ std::tuple<arma::uvec, arma::vec> GenerateTxSignals(int TxAntNum, arma::vec Cons
 std::tuple<arma::vec, double> GenerateRxSignals(arma::mat H, arma::vec TxSignals, double SNRdB, int ModType)
 {
 
-    int RxAntNum = H.n_rows / 2;
-    int TxAntNum = H.n_cols / 2;
-    double SNR = std::pow(10, SNRdB / 10);
-    double Nv = RxAntNum / (SNR * ModType);
+    static int RxAntNum = H.n_rows / 2;
+    static int TxAntNum = H.n_cols / 2;
+    static double SNR = std::pow(10, SNRdB / 10);
+    static double Nv = RxAntNum / (SNR * ModType);
+    static double sqrtNvd2 = std::sqrt(Nv / 2);
 
-    arma::vec Noise = arma::randn<arma::vec>(2 * RxAntNum);
-    Noise *= std::sqrt(Nv / 2);
+    static arma::vec Noise(RxAntNum * 2);
+    Noise.randn();
+    Noise *= sqrtNvd2;
 
-    arma::vec RxSignals = H * TxSignals + Noise;
+    static arma::vec RxSignals(RxAntNum * 2);
+    RxSignals = H * TxSignals + Noise;
 
     return std::make_tuple(RxSignals, Nv);
 }
@@ -116,117 +124,118 @@ std::tuple<arma::uvec, arma::vec> MMSE(arma::mat H, arma::vec RxSignals, arma::v
 
     arma::mat dis = arma::abs(arma::repmat(TxEst, 1, Cons.n_elem) - arma::repmat(Cons, 1, TxEst.n_elem).t());
 
-    arma::uvec RxIndice = arma::index_min(dis, 1);
+    arma::uvec TxBitsEst = arma::index_min(dis, 1);
 
-    arma::vec RxSymbols = Cons.elem(RxIndice);
+    arma::vec TxSymbolsEst = Cons.elem(TxBitsEst);
 
-    return std::make_tuple(RxIndice, RxSymbols);
+    return std::make_tuple(TxBitsEst, TxSymbolsEst);
 }
 
 std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec Cons, double Nv, int iter)
 {
-    double delta=0.9;
-    // initialize
-    int RxAntNum2 = H.n_rows;
-    int TxAntNum2 = H.n_cols;
+    static double delta = 0.9;
 
-    arma::vec Alpha = 2 * arma::vec(TxAntNum2, arma::fill::ones);
-    arma::vec Gamma = arma::vec(TxAntNum2, arma::fill::zeros);
+    static int RxAntNum2 = H.n_rows;
+    static int TxAntNum2 = H.n_cols;
 
-    arma::vec tempAlpha = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec tempGamma = arma::vec(TxAntNum2, arma::fill::zeros);
+    static arma::vec Alpha(TxAntNum2); 
+    Alpha = 2 * arma::ones<arma::vec>(TxAntNum2);
+    static arma::vec Gamma(TxAntNum2);
+    Gamma.zeros();
 
+    static arma::vec Alpha_new(TxAntNum2);
+    static arma::vec Gamma_new(TxAntNum2);
 
-    arma::vec Alpha_new = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec Gamma_new = arma::vec(TxAntNum2, arma::fill::zeros);
+    static arma::vec sig(TxAntNum2);
+    static arma::vec h2(TxAntNum2);
+    static arma::vec t(TxAntNum2);
 
+    static arma::vec Cons2 = arma::square(Cons);
+    static arma::mat ConsTRep = arma::repmat(Cons.t(), TxAntNum2, 1);
 
-    arma::vec sig = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec h2 = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec t = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec sigma2_p = arma::vec(TxAntNum2, arma::fill::zeros);
-    arma::vec mu_p = arma::vec(TxAntNum2, arma::fill::zeros);
+    static arma::mat prob(TxAntNum2, Cons.n_elem);
+    static arma::vec sigma2_p(TxAntNum2);
 
-    arma::mat prob = arma::mat(TxAntNum2, Cons.n_elem, arma::fill::zeros);
+    static arma::uvec in;
 
-    arma::vec Cons2 = arma::square(Cons);
-
-    arma::uvec in=arma::uvec(TxAntNum2, arma::fill::zeros);
-
-    // perform MMSE
-    arma::mat HtH = H.t() * H;
+    static arma::mat HtH(TxAntNum2, TxAntNum2);
+    HtH = H.t() * H;
     HtH /= Nv;
 
-    arma::mat HtHOne=HtH;
-    HtHOne.diag() += 1;
+    static arma::mat HtHMod(TxAntNum2, TxAntNum2);
+    HtHMod = HtH;
+    HtHMod.diag() += 1;
 
-    arma::mat Sigma_q = arma::inv(HtHOne);
-    arma::vec Mu_q = Sigma_q * (H.t() * RxSignals / Nv);
+    static arma::vec HtRxSignals(TxAntNum2);
+    HtRxSignals = H.t() * RxSignals / Nv;
 
-    for (int i = 0; i < iter; i++)
-    {
-        sig = arma::diagvec(Sigma_q);
-        h2 = sig / (1 - sig % Alpha);
+    static arma::vec Mu_q(TxAntNum2);
+    Mu_q = arma::solve(HtHMod, HtRxSignals, arma::solve_opts::fast);
+
+    for (int i = 0; i < iter; ++i) {
+        sig = arma::diagvec(HtHMod - HtH);
+        h2 = 1.0 / (1 / sig - Alpha);
         t = h2 % (Mu_q / sig - Gamma);
 
-        prob = arma::exp(-arma::square(arma::repmat(t, 1, Cons.n_elem) - arma::repmat(Cons, 1, TxAntNum2).t()));
-        prob.each_col() /=(2 * h2);
+        prob = arma::exp(-arma::square(t * arma::ones<arma::rowvec>(Cons.n_elem) - ConsTRep));
+        prob.each_col() /= (2 * h2);
         prob.each_col() /= arma::sum(prob, 1);
 
-        mu_p = arma::sum(prob.each_row() % Cons.t(), 1);
-
-        sigma2_p = arma::sum(prob.each_row() % Cons2.t(), 1) - arma::square(mu_p);
-
+        sigma2_p = arma::sum(prob % arma::square(ConsTRep), 1) - arma::square(arma::sum(prob % ConsTRep, 1));
         sigma2_p.elem(arma::find(sigma2_p < 5e-7)).fill(5e-7);
 
-        tempAlpha=1/sigma2_p-1/h2;
-        tempGamma=mu_p/sigma2_p-t/h2;
+        Alpha_new = 1 / sigma2_p - 1 / h2;
+        Gamma_new = arma::sum(prob % ConsTRep, 1) / sigma2_p - t / h2;
 
-        in=arma::find(tempAlpha > 5e-7);
-        Alpha_new.elem(in)=tempAlpha.elem(in);
-        Gamma_new.elem(in)=tempGamma.elem(in);
+        in = arma::find(Alpha_new > 5e-7);
+        Alpha.elem(in) = delta * Alpha_new.elem(in) + (1 - delta) * Alpha.elem(in);
+        Gamma.elem(in) = delta * Gamma_new.elem(in) + (1 - delta) * Gamma.elem(in);
 
-        Alpha=delta*Alpha_new+(1-delta)*Alpha;
-        Gamma=delta*Gamma_new+(1-delta)*Gamma;
-
-        HtHOne=HtH;
-
-        HtHOne.diag()+=Alpha;
-        Sigma_q = arma::inv(HtHOne);
-        Mu_q = Sigma_q * (H.t() * RxSignals / Nv);
+        HtHMod.diag() = HtH.diag() + Alpha;
+        Mu_q = arma::solve(HtHMod, HtRxSignals, arma::solve_opts::fast);
     }
 
-    arma::mat dis = arma::abs(arma::repmat(Mu_q, 1, Cons.n_elem) - arma::repmat(Cons, 1, TxAntNum2).t());
+    static arma::mat dis(TxAntNum2, Cons.n_elem);
+    dis = arma::abs(Mu_q * arma::ones<arma::rowvec>(Cons.n_elem) - ConsTRep);
 
-    arma::uvec RxIndice = arma::index_min(dis, 1);
+    static arma::uvec TxIndiceEst(TxAntNum2);
+    TxIndiceEst = arma::index_min(dis, 1);
 
-    arma::vec RxSymbols = Cons.elem(RxIndice);
+    static arma::vec TxSymbolsEst(TxAntNum2);
+    TxSymbolsEst = Cons.elem(TxIndiceEst);
 
-    return std::make_tuple(RxIndice, RxSymbols);
-
+    return std::make_tuple(TxIndiceEst, TxSymbolsEst);
 }
+
 
 int Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample)
 {
-
     int error = 0;
-    auto [Cons, bitCons] = GenerateCons(ModType);
+    arma::vec Cons;
+    arma::mat bitCons;
+    std::tie(Cons, bitCons) = GenerateCons(ModType);
+
+    arma::mat H, TxBits, TxBitsEst;
+    arma::uvec TxIndice, TxIndiceEst;
+    arma::vec TxSignals, RxSignals;
+    double Nv;
 
     for (int i = 0; i < sample; i++)
     {
-        auto H = GenerateChannelMatrix(TxAntNum, RxAntNum);
+        H = GenerateChannelMatrix(TxAntNum, RxAntNum);
 
-        auto [TxIndice, TxSignals] = GenerateTxSignals(TxAntNum, Cons);
+        std::tie(TxIndice, TxSignals) = GenerateTxSignals(TxAntNum, Cons);
 
-        auto [RxSignals, Nv] = GenerateRxSignals(H, TxSignals, SNRdB, ModType);
+        std::tie(RxSignals, Nv) = GenerateRxSignals(H, TxSignals, SNRdB, ModType);
 
-        auto [RxIndice, RxSymbols] = MMSE(H, RxSignals, Cons, Nv);
+        std::tie(TxIndiceEst, std::ignore) = EP(H, RxSignals, Cons, Nv, 5);
 
-        arma::mat TxBits = bitCons.rows(TxIndice);
-        arma::mat RxBits = bitCons.rows(RxIndice);
+        TxBits = bitCons.rows(TxIndice);
+        TxBitsEst = bitCons.rows(TxIndiceEst);
 
-        error += arma::accu(TxBits != RxBits);
+        error += arma::accu(TxBits != TxBitsEst);
     }
 
     return error;
 }
+
