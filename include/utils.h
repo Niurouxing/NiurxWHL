@@ -13,6 +13,8 @@ std::tuple<arma::vec, double> GenerateRxSignals(arma::mat H, arma::vec TxSignals
 
 std::tuple<arma::uvec, arma::vec> MMSE(arma::mat H,arma::vec RxSignals,arma::vec Cons,double Nv);
 
+std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec Cons, double Nv, int iter);
+
 int Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample);
 
  
