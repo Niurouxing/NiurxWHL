@@ -9,7 +9,9 @@ SNRdB = 20
 ModType = 4
 sample = 10000
 
-err = mimo.Detection(TxAntNum, RxAntNum, SNRdB, ModType, sample)
+for i in range(5000):
+
+    err = mimo.Detection(TxAntNum, RxAntNum, SNRdB, ModType, sample)
 
 print(err)
 
