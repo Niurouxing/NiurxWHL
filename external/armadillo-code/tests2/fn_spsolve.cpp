@@ -881,4 +881,58 @@ TEST_CASE("fn_spsolve_cx_float_function_test")
     }
   }
 
+
+
+TEST_CASE("spsolve_factoriser_test")
+  {
+  sp_mat A;
+  A.sprandu(100, 100, 0.2);
+  A.diag().randu();
+  A.diag() += 1;
+  
+  vec B(100, fill::randu);
+  
+  vec X1;
+  bool X1_status = spsolve(X1, A, B);
+  REQUIRE( X1_status );
+  
+  
+  spsolve_factoriser SF;
+  bool SF_status = SF.factorise(A);
+  REQUIRE( SF_status );
+  
+  double rcond_value = SF.rcond();
+  REQUIRE( rcond_value > 0.0 );
+  
+  vec X2;
+  bool X2_status = SF.solve(X2, B);
+  REQUIRE( X2_status );
+  
+  vec X3;
+  bool X3_status = SF.solve(X3, B);
+  REQUIRE( X3_status );
+  
+  REQUIRE( X1.n_rows == X2.n_rows );
+  REQUIRE( X1.n_rows == X3.n_rows );
+  
+  REQUIRE( approx_equal(X1, X2, "absdiff", 100.0*datum::eps) );
+  REQUIRE( approx_equal(X1, X3, "absdiff", 100.0*datum::eps) );
+  
+  vec C(100, fill::randu);
+  vec Y;
+  
+  bool Y_status = SF.solve(Y, C);
+  REQUIRE( Y_status );
+  
+  REQUIRE( approx_equal(X1, Y, "absdiff", 100.0*datum::eps) == false );
+  
+  vec D(101, fill::randu);
+  vec Z(100, fill::randu);
+  
+  bool Z_status = SF.solve(Z, D);
+  REQUIRE( Z_status == false );
+  
+  REQUIRE( Z.n_elem == 0 );
+  }
+
 #endif

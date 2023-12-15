@@ -718,6 +718,8 @@ TEST_CASE("shed_cols_test")
   REQUIRE( a(0, 0) == 0 );
   REQUIRE( a(1, 0) == 0 );
   REQUIRE( a(2, 0) == 1 );
+  // Make sure that the row indices are sized appropriately.
+  REQUIRE( a.row_indices[a.n_nonzero] == 0 );
 
   b.shed_cols(1, 2);
   REQUIRE( b.n_cols == 1 );
@@ -727,6 +729,7 @@ TEST_CASE("shed_cols_test")
   REQUIRE( b(0, 0) == 1 );
   REQUIRE( b(1, 0) == 0 );
   REQUIRE( b(2, 0) == 0 );
+  REQUIRE( b.row_indices[b.n_nonzero] == 0 );
 
   c.shed_cols(0, 0);
   c.shed_cols(1, 1);
@@ -737,6 +740,7 @@ TEST_CASE("shed_cols_test")
   REQUIRE( c(0, 0) == 0 );
   REQUIRE( c(1, 0) == 1 );
   REQUIRE( c(2, 0) == 0 );
+  REQUIRE( c.row_indices[c.n_nonzero] == 0 );
   }
 
 TEST_CASE("shed_row_test")

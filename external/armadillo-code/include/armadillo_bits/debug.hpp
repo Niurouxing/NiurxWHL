@@ -21,57 +21,11 @@
 
 
 
-template<typename T>
-inline
-std::ostream&
-arma_cout_stream(std::ostream* user_stream)
-  {
-  static std::ostream* cout_stream = &(ARMA_COUT_STREAM);
-  
-  if(user_stream != nullptr)  { cout_stream = user_stream; }
-  
-  return (*cout_stream);
-  }
-
-
-
-template<typename T>
-inline
-std::ostream&
-arma_cerr_stream(std::ostream* user_stream)
-  {
-  static std::ostream* cerr_stream = &(ARMA_CERR_STREAM);
-  
-  if(user_stream != nullptr)  { cerr_stream = user_stream; }
-  
-  return (*cerr_stream);
-  }
-
-
-
-inline
-void
-set_cout_stream(std::ostream& user_stream)
-  {
-  arma_cout_stream<char>(&user_stream);
-  }
-
-
-
-inline
-void
-set_cerr_stream(std::ostream& user_stream)
-  {
-  arma_cerr_stream<char>(&user_stream);
-  }
-
-
-
 inline
 std::ostream&
 get_cout_stream()
   {
-  return arma_cout_stream<char>(nullptr);
+  return (ARMA_COUT_STREAM);
   }
 
 
@@ -80,36 +34,13 @@ inline
 std::ostream&
 get_cerr_stream()
   {
-  return arma_cerr_stream<char>(nullptr);
+  return (ARMA_CERR_STREAM);
   }
 
 
 
-//! do not use this function - it's deprecated and will be removed
-inline
 arma_deprecated
-void
-set_stream_err1(std::ostream& user_stream)
-  {
-  set_cerr_stream(user_stream);
-  }
-
-
-
-//! do not use this function - it's deprecated and will be removed
 inline
-arma_deprecated
-void
-set_stream_err2(std::ostream& user_stream)
-  {
-  set_cerr_stream(user_stream);
-  }
-
-
-
-//! do not use this function - it's deprecated and will be removed
-inline
-arma_deprecated
 std::ostream&
 get_stream_err1()
   {
@@ -118,13 +49,70 @@ get_stream_err1()
 
 
 
-//! do not use this function - it's deprecated and will be removed
-inline
 arma_deprecated
+inline
 std::ostream&
 get_stream_err2()
   {
   return get_cerr_stream();
+  }
+
+
+
+arma_frown("this function does nothing; instead use ARMA_COUT_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+void
+set_cout_stream(const std::ostream&)
+  {
+  }
+
+
+
+arma_frown("this function does nothing; instead use ARMA_CERR_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+void
+set_cerr_stream(const std::ostream&)
+  {
+  }
+
+
+
+arma_frown("this function does nothing; instead use ARMA_CERR_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+void
+set_stream_err1(const std::ostream&)
+  {
+  }
+
+
+
+arma_frown("this function does nothing; instead use ARMA_CERR_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+void
+set_stream_err2(const std::ostream&)
+  {
+  }
+
+
+
+template<typename T>
+arma_frown("this function does nothing; instead use ARMA_COUT_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+std::ostream&
+arma_cout_stream(std::ostream*)
+  {
+  return (ARMA_COUT_STREAM);
+  }
+
+
+
+template<typename T>
+arma_frown("this function does nothing; instead use ARMA_CERR_STREAM or ARMA_WARN_LEVEL; see documentation")
+inline
+std::ostream&
+arma_cerr_stream(std::ostream*)
+  {
+  return (ARMA_CERR_STREAM);
   }
 
 
@@ -159,7 +147,7 @@ arma_stop_logic_error(const char* x, const char* y)
 
 
 
-//! print a message to get_cerr_stream() and throw logic_error exception
+//! print a message to get_cerr_stream() and throw out_of_range exception
 template<typename T1>
 arma_cold
 arma_noinline
@@ -275,7 +263,7 @@ arma_print(const T1& x, const T2& y, const T3& z)
 //
 // arma_sigprint
 
-//! print a message the the log stream with a preceding @ character.
+//! print a message to the log stream with a preceding @ character.
 //! by default the log stream is cout.
 //! used for printing the signature of a function
 //! (see the arma_extra_debug_sigprint macro) 
@@ -347,7 +335,7 @@ static
 void
 arma_warn(const T1& arg1)
   {
-  get_cerr_stream() << "\nwarning: " << arg1 << '\n';
+  get_cerr_stream() << "\nwarning: " << arg1 << std::endl;
   }
 
 
@@ -358,7 +346,7 @@ static
 void
 arma_warn(const T1& arg1, const T2& arg2)
   {
-  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << '\n';
+  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << std::endl;
   }
 
 
@@ -369,7 +357,7 @@ static
 void
 arma_warn(const T1& arg1, const T2& arg2, const T3& arg3)
   {
-  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << arg3 << '\n';
+  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << arg3 << std::endl;
   }
 
 
@@ -380,19 +368,13 @@ static
 void
 arma_warn(const T1& arg1, const T2& arg2, const T3& arg3, const T4& arg4)
   {
-  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << arg3 << arg4 << '\n';
+  get_cerr_stream() << "\nwarning: " << arg1 << arg2 << arg3 << arg4 << std::endl;
   }
 
 
 
 //
 // arma_warn_level
-
-
-#if defined(ARMA_EXTRA_DEBUG)
-  #undef  ARMA_WARN_LEVEL
-  #define ARMA_WARN_LEVEL 3
-#endif
 
 
 template<typename T1>
@@ -454,12 +436,32 @@ arma_check(const bool state, const T1& x)
   }
 
 
+template<typename Functor>
+arma_hot
+inline
+void
+arma_check(const bool state, const char* x, const Functor& fn)
+  {
+  if(state)  { fn(); arma_stop_logic_error(x); }
+  }
+
+
 arma_hot
 inline
 void
 arma_check(const bool state, const char* x, const char* y)
   {
   if(state)  { arma_stop_logic_error(x,y); }
+  }
+
+
+template<typename Functor>
+arma_hot
+inline
+void
+arma_check(const bool state, const char* x, const char* y, const Functor& fn)
+  {
+  if(state)  { fn(); arma_stop_logic_error(x,y); }
   }
 
 
@@ -565,8 +567,8 @@ arma_incompat_size_string(const subview_cube<eT>& Q, const Mat<eT>& A, const cha
 
 
 
-arma_inline
 arma_hot
+arma_inline
 void
 arma_assert_same_size(const uword A_n_rows, const uword A_n_cols, const uword B_n_rows, const uword B_n_cols, const char* x)
   {
@@ -1421,6 +1423,7 @@ arma_assert_atlas_size(const T1& A, const T2& B)
         out << "@ arma_config::wrapper          = " << arma_config::wrapper          << '\n';
         out << "@ arma_config::cxx14            = " << arma_config::cxx14            << '\n';
         out << "@ arma_config::cxx17            = " << arma_config::cxx17            << '\n';
+        out << "@ arma_config::cxx20            = " << arma_config::cxx20            << '\n';
         out << "@ arma_config::std_mutex        = " << arma_config::std_mutex        << '\n';
         out << "@ arma_config::posix            = " << arma_config::posix            << '\n';
         out << "@ arma_config::openmp           = " << arma_config::openmp           << '\n';
@@ -1438,10 +1441,11 @@ arma_assert_atlas_size(const T1& A, const T2& B)
         out << "@ arma_config::mp_threshold     = " << arma_config::mp_threshold     << '\n';
         out << "@ arma_config::mp_threads       = " << arma_config::mp_threads       << '\n';
         out << "@ arma_config::optimise_band    = " << arma_config::optimise_band    << '\n';
-        out << "@ arma_config::optimise_sympd   = " << arma_config::optimise_sympd   << '\n';
+        out << "@ arma_config::optimise_sym     = " << arma_config::optimise_sym     << '\n';
         out << "@ arma_config::optimise_invexpr = " << arma_config::optimise_invexpr << '\n';
         out << "@ arma_config::check_nonfinite  = " << arma_config::check_nonfinite  << '\n';
         out << "@ arma_config::zero_init        = " << arma_config::zero_init        << '\n';
+        out << "@ arma_config::fast_math        = " << arma_config::fast_math        << '\n';
         out << "@ sizeof(void*)    = " << sizeof(void*)    << '\n';
         out << "@ sizeof(int)      = " << sizeof(int)      << '\n';
         out << "@ sizeof(long)     = " << sizeof(long)     << '\n';

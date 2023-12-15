@@ -21,10 +21,10 @@
 
 
 
-#define ARMA_VERSION_MAJOR 11
-#define ARMA_VERSION_MINOR 1
-#define ARMA_VERSION_PATCH 1
-#define ARMA_VERSION_NAME  "Angry Kitchen Appliance"
+#define ARMA_VERSION_MAJOR 12
+#define ARMA_VERSION_MINOR 6
+#define ARMA_VERSION_PATCH 6
+#define ARMA_VERSION_NAME  "Cortisol Retox"
 
 
 

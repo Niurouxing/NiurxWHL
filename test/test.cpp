@@ -1,10 +1,10 @@
 #include "utils.h"
 
 int main(int argc, char** argv) {
-    int TxAntNum = 4;
-    int RxAntNum = 4;
-    double SNRdB = 10;
-    int ModType = 4;
+    int TxAntNum = 8;
+    int RxAntNum = 16;
+    double SNRdB = 20;
+    int ModType = 6;
     int sample = 1000;
 
     // 创建两个相同形状的矩阵

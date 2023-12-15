@@ -170,12 +170,12 @@ std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec
         t = h2 % (Mu_q / sig - Gamma);
 
         prob = arma::exp(-arma::square(arma::repmat(t, 1, Cons.n_elem) - arma::repmat(Cons, 1, TxAntNum2).t()));
-        prob.each_row() /=(2 * h2);
-        prob.each_row() /= arma::sum(prob, 1);
+        prob.each_col() /=(2 * h2);
+        prob.each_col() /= arma::sum(prob, 1);
 
-        mu_p = arma::sum(prob.each_row() % Cons, 1);
+        mu_p = arma::sum(prob.each_row() % Cons.t(), 1);
 
-        sigma2_p = arma::sum(prob.each_row() % Cons2, 1) - arma::square(mu_p);
+        sigma2_p = arma::sum(prob.each_row() % Cons2.t(), 1) - arma::square(mu_p);
 
         sigma2_p.elem(arma::find(sigma2_p < 5e-7)).fill(5e-7);
 

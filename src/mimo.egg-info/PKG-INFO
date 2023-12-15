@@ -2,12 +2,7 @@ Metadata-Version: 2.1
 Name: mimo
 Version: 0.0.1
 Summary: a minimal example package (with carma + pybind11)
-Home-page: UNKNOWN
 Author: Tim Nonet
 License: MIT
-Platform: UNKNOWN
 Requires-Python: >=3.6
 Provides-Extra: test
-
-UNKNOWN
-
