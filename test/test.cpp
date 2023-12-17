@@ -2,11 +2,11 @@
 
 int main(int argc, char **argv)
 {
-  int TxAntNum = 2;
-  int RxAntNum = 4;
-  double SNRdB = 15;
-  int ModType = 6;
-  int sample = 1000;
+  int TxAntNum = 4;
+  int RxAntNum = 8;
+  double SNRdB = 10;
+  int ModType = 4;
+  int sample = 100000;
 
   // 创建两个相同形状的矩阵
   arma::mat A = arma::ones<arma::mat>(3, 3) * 9; // 3x3 矩阵，所有元素为 9
@@ -59,8 +59,8 @@ int main(int argc, char **argv)
   // Detection
   for (int i = 0; i < 10; i++)
   {
-    int err = Detection(TxAntNum, RxAntNum, SNRdB, ModType, sample);
-    std::cout << "err:" << err << std::endl;
+     auto [errorBits, errorFrames] = Detection(TxAntNum, RxAntNum, SNRdB, ModType, sample);
+      std::cout << "errorBits:" << errorBits << ' ' << "errorFrames:" << errorFrames << std::endl;
   }
 
   return 0;

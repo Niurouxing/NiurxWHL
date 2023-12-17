@@ -25,12 +25,12 @@ void bind_Detection(py::module &m) {
                 coefficients
             std_err : np.ndarray
                 standard error on the coefficients
-        )pbdoc",
-        py::arg("TxAntNum"),
-        py::arg("RxAntNum"),
-        py::arg("SNRdB"),
-        py::arg("ModType"),
-        py::arg("sample")
+        )pbdoc"
+        // py::arg("TxAntNum"),
+        // py::arg("RxAntNum"),
+        // py::arg("SNRdB"),
+        // py::arg("ModType"),
+        // py::arg("sample")
     );
 }
 

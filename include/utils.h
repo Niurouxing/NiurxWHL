@@ -15,6 +15,6 @@ std::tuple<arma::uvec, arma::vec> MMSE(arma::mat H,arma::vec RxSignals,arma::vec
 
 std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec Cons, double Nv, int iter);
 
-int Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample);
+std::tuple<int,int>  Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample);
 
  

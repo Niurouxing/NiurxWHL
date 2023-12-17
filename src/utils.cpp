@@ -134,7 +134,7 @@ std::tuple<arma::uvec, arma::vec> MMSE(arma::mat H, arma::vec RxSignals, arma::v
 std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec Cons, double Nv, int iter)
 {
     static double delta = 0.9;
-
+ 
     static int RxAntNum2 = H.n_rows;
     static int TxAntNum2 = H.n_cols;
 
@@ -145,6 +145,11 @@ std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec
 
     static arma::vec Alpha_new(TxAntNum2);
     static arma::vec Gamma_new(TxAntNum2);
+    Alpha_new.zeros();
+    Gamma_new.zeros();
+
+    static arma::vec tempAlpha(TxAntNum2);
+    static arma::vec tempGamma(TxAntNum2);
 
     static arma::vec sig(TxAntNum2);
     static arma::vec h2(TxAntNum2);
@@ -156,7 +161,9 @@ std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec
     static arma::mat prob(TxAntNum2, Cons.n_elem);
     static arma::vec sigma2_p(TxAntNum2);
 
-    static arma::uvec in;
+    static arma::vec mu_p(TxAntNum2);
+
+    static arma::uvec in(TxAntNum2);
 
     static arma::mat HtH(TxAntNum2, TxAntNum2);
     HtH = H.t() * H;
@@ -164,35 +171,46 @@ std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec
 
     static arma::mat HtHMod(TxAntNum2, TxAntNum2);
     HtHMod = HtH;
-    HtHMod.diag() += 1;
+    HtHMod.diag() += 2;
 
     static arma::vec HtRxSignals(TxAntNum2);
     HtRxSignals = H.t() * RxSignals / Nv;
 
+    static arma::mat Sigma_q(TxAntNum2, TxAntNum2);
+    Sigma_q = arma::inv(HtHMod);
+
     static arma::vec Mu_q(TxAntNum2);
-    Mu_q = arma::solve(HtHMod, HtRxSignals, arma::solve_opts::fast);
+    Mu_q = Sigma_q * HtRxSignals;
 
     for (int i = 0; i < iter; ++i) {
-        sig = arma::diagvec(HtHMod - HtH);
-        h2 = 1.0 / (1 / sig - Alpha);
+        sig = arma::diagvec(Sigma_q);
+        h2 = sig /(1-sig%Alpha);
         t = h2 % (Mu_q / sig - Gamma);
 
-        prob = arma::exp(-arma::square(t * arma::ones<arma::rowvec>(Cons.n_elem) - ConsTRep));
+        prob = -arma::square(arma::repmat(t, 1, Cons.n_elem) - ConsTRep);
         prob.each_col() /= (2 * h2);
+        prob = arma::exp(prob);
         prob.each_col() /= arma::sum(prob, 1);
 
-        sigma2_p = arma::sum(prob % arma::square(ConsTRep), 1) - arma::square(arma::sum(prob % ConsTRep, 1));
-        sigma2_p.elem(arma::find(sigma2_p < 5e-7)).fill(5e-7);
+        mu_p = prob * Cons;
 
-        Alpha_new = 1 / sigma2_p - 1 / h2;
-        Gamma_new = arma::sum(prob % ConsTRep, 1) / sigma2_p - t / h2;
+        sigma2_p = prob*Cons2 - arma::square(mu_p);
+        sigma2_p = arma::clamp(sigma2_p, 5e-7, arma::datum::inf);
+         
 
-        in = arma::find(Alpha_new > 5e-7);
-        Alpha.elem(in) = delta * Alpha_new.elem(in) + (1 - delta) * Alpha.elem(in);
-        Gamma.elem(in) = delta * Gamma_new.elem(in) + (1 - delta) * Gamma.elem(in);
+        tempAlpha = 1 / sigma2_p - 1 / h2;
+        tempGamma = mu_p / sigma2_p -t / h2;
+
+        in = arma::find(tempAlpha > 5e-7);
+        Alpha_new.elem(in) = tempAlpha.elem(in);
+        Gamma_new.elem(in) = tempGamma.elem(in);
+
+        Alpha = delta* Alpha_new + (1-delta)* Alpha;
+        Gamma = delta* Gamma_new + (1-delta)* Gamma; 
 
         HtHMod.diag() = HtH.diag() + Alpha;
-        Mu_q = arma::solve(HtHMod, HtRxSignals, arma::solve_opts::fast);
+        Sigma_q = arma::inv(HtHMod);
+        Mu_q = Sigma_q * (HtRxSignals + Gamma);
     }
 
     static arma::mat dis(TxAntNum2, Cons.n_elem);
@@ -208,9 +226,11 @@ std::tuple<arma::uvec, arma::vec> EP(arma::mat H, arma::vec RxSignals, arma::vec
 }
 
 
-int Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample)
+std::tuple<int,int> Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample)
 {
-    int error = 0;
+    int errorBits = 0;
+    int errorFrames = 0;
+    int error=0;
     arma::vec Cons;
     arma::mat bitCons;
     std::tie(Cons, bitCons) = GenerateCons(ModType);
@@ -229,13 +249,16 @@ int Detection(int TxAntNum, int RxAntNum, double SNRdB, int ModType, int sample)
         std::tie(RxSignals, Nv) = GenerateRxSignals(H, TxSignals, SNRdB, ModType);
 
         std::tie(TxIndiceEst, std::ignore) = EP(H, RxSignals, Cons, Nv, 5);
+        // std::tie(TxIndiceEst, std::ignore) = MMSE(H, RxSignals, Cons, Nv);
 
         TxBits = bitCons.rows(TxIndice);
         TxBitsEst = bitCons.rows(TxIndiceEst);
 
-        error += arma::accu(TxBits != TxBitsEst);
+        error = arma::accu(TxBits != TxBitsEst);
+        errorBits += error;
+        errorFrames += (error > 0);
     }
 
-    return error;
+    return std::make_tuple(errorBits, errorFrames);
 }
 

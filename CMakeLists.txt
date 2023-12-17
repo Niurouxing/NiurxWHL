@@ -21,6 +21,7 @@
 # if($ENV{CIBUILDWHEEL})
 #     target_compile_definitions(armadillo PRIVATE -DARMA_USE_LAPACK)
 #     target_compile_definitions(armadillo PRIVATE -DARMA_USE_BLAS)
+#     target_compile_definitions(armadillo PRIVATE -DARMA_USE_OPENMP)
 # endif()
 
 # # Add -fPIC for Armadillo (and OpenBLAS if compiled)
@@ -62,15 +63,6 @@
 
 # INSTALL(TARGETS ${MODNAME} DESTINATION .)
  
-
-
-
-
-
-
-
-
-
 
 
 
