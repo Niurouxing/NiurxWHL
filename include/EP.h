@@ -46,7 +46,7 @@ class EP: public Algorithm {
 
         // 中间变量
 
-
+        double * invOneMinusSigAlpha;
         double * HtRAddGamma;
 
  

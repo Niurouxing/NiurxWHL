@@ -59,6 +59,7 @@ EP::EP(int iter, double delta): Algorithm() {
 
     choleskyInv = new CholeskyInv(TxAntNum2);
 
+    invOneMinusSigAlpha = new double[TxAntNum2];
     HtRAddGamma = new double[TxAntNum2];
 
 }
@@ -107,6 +108,7 @@ EP::~EP() {
 
     delete choleskyInv;
 
+    delete[] invOneMinusSigAlpha;
     delete[] HtRAddGamma;
 }
 
@@ -151,16 +153,19 @@ void EP::execute(){
             // sig = diag(Sigma_q)
             sig[j] = Sigma_q[j][j];
 
+            // 1 ./ (1 - sig * Alpha)
+            invOneMinusSigAlpha[j] = 1.0 / (1.0 - sig[j] * Alpha[j]);
+
             // h2 = sig ./ (1 - sig * Alpha)
-            h2[j] = 1.0 / sig[j] - Alpha[j];
+            h2[j] = sig[j] * invOneMinusSigAlpha[j];
 
             // t = (Mu_q - sig * Gamma) ./ (1 - sig * Alpha)
-            t[j] = (Mu_q[j] - sig[j] * Gamma[j]) / (1.0 - sig[j] * Alpha[j]);
+            t[j] = (Mu_q[j] - sig[j] * Gamma[j]) * invOneMinusSigAlpha[j];
 
             double probSum = 0;
             for(int k = 0; k < ConSize; k++) {
                 // prob = exp( -( t - sym' ).^2./( 2 * h2 ));
-                prob[j][k] = std::exp(-(t[j] - Cons[k]) * (t[j] - Cons[k]) * h2[j] * 0.5);
+                prob[j][k] = std::exp(-(t[j] - Cons[k]) * (t[j] - Cons[k]) / (2 * h2[j]));
 
                 probSum += prob[j][k];
             }
@@ -182,15 +187,15 @@ void EP::execute(){
                 sigma2_p[j] += prob[j][k] * Cons2[k];
             }
 
-            sigma2_p[j] = sigma2_p[j] < 5e-7 ? 2e6 : 1.0/sigma2_p[j];
+            sigma2_p[j] = sigma2_p[j] < 5e-7 ? 5e-7 : sigma2_p[j];
 
             // tempAlpha = 1./sigma2_p - 1./ h2;
-            double tempAlpha = 1.0 * sigma2_p[j] - 1.0 * h2[j];
+            double tempAlpha = 1.0 / sigma2_p[j] - 1.0 / h2[j];
 
             if (tempAlpha > 5e-7) {
 
                 Alpha_new[j] = tempAlpha;
-                Gamma_new[j] = mu_p[j] * sigma2_p[j] - t[j] * h2[j];
+                Gamma_new[j] = mu_p[j] / sigma2_p[j] - t[j] / h2[j];
 
             }
 
