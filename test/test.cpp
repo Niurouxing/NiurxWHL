@@ -9,7 +9,7 @@
 
 int main(){
 
-    Mimo::createMimo(16,32,4,20);
+    Mimo::createMimo(2,4,4,20);
 
     std::cout << "Cons : " << std::endl;
     printVector(Mimo::getMimo()->Cons, Mimo::getMimo()->ConSize);

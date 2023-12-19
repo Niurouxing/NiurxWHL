@@ -45,7 +45,7 @@ void MMSE::execute() {
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, HtR);
 
     MatrixTransposeMultiplyMatrix(H, H, RxAntNum2, TxAntNum2, TxAntNum2, HtH);
-
+ 
     for (int i = 0; i < TxAntNum2; i++) {
         HtH[i * TxAntNum2 + i] += Nv;
     }
@@ -61,7 +61,7 @@ void MMSE::execute() {
             for (int k = 0; k < j; ++k) {
                 sum += L[i * TxAntNum2 + k] * L[j * TxAntNum2 + k];
             }
-            L[i * TxAntNum2 + j] = (i == j) ? sqrt(HtH[i * TxAntNum2 + i] - sum) : (1.0 / L[j * TxAntNum2 + j] * (HtH[i * TxAntNum2 + j] - sum));
+            L[i * TxAntNum2 + j] = (i == j) ? std::sqrt(HtH[i * TxAntNum2 + i] - sum) : (1.0 / L[j * TxAntNum2 + j] * (HtH[i * TxAntNum2 + j] - sum));
         }
     }
 
@@ -96,7 +96,7 @@ void MMSE::execute() {
 
         for(int j=0;j<ConSize;j++){
             double distance = 0;
-            distance = abs(TxSymbolsEst[i] - Cons[j]);
+            distance = std::abs(TxSymbolsEst[i] - Cons[j]);
 
             if(distance < minDistance){
                 minDistance = distance;

@@ -128,7 +128,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
     }
 
     this->Nv = TxAntNum * RxAntNum / (pow(10, SNRdB / 10) * ModType * TxAntNum);
-    this->sqrtNvDiv2 = sqrt(Nv / 2);
+    this->sqrtNvDiv2 = std::sqrt(Nv / 2);
 }
 
 
