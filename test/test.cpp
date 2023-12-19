@@ -36,7 +36,8 @@ int main(){
     mmse->execute();
 
     std::cout << "TxBitsEst : " << std::endl;
-    printMatrix(Mimo::getMimo()->TxBitsEst, Mimo::getMimo()->TxAntNum2, Mimo::getMimo()->bitLength);
+    printMatrix(mmse->getTxBitsEst(), Mimo::getMimo()->TxAntNum2, Mimo::getMimo()->bitLength);
+    
 
     for (int i = 0; i < 100; i++) {
         Mimo::getMimo()->reset();

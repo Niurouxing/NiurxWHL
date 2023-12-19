@@ -6,7 +6,7 @@ TxAntNum = 32
 RxAntNum = 64
 SNR = 10
 ModType = 4
-sample = 100000
+sample = 10000
 
 
 

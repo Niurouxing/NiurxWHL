@@ -120,7 +120,6 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
     this->RxSymbols = new double[RxAntNum2];
 
     this->TxBits = new int[TxAntNum2 * bitLength];
-    this->TxBitsEst = new int[TxAntNum2 * bitLength];
 
     this->H = new double*[RxAntNum2];
     for (int i = 0; i < RxAntNum2; i++) {

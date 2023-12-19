@@ -8,12 +8,26 @@ class Algorithm {
         Mimo * mimo;
         int errorBits;
         int errorFrames;
+
+        double ** H;
+        double * RxSymbols;
+        const double * Cons;
+        const int * bitCons;
+        double  Nv;
+
+        int TxAntNum2, RxAntNum2, ConSize, bitLength;
+
+        double * TxSymbolsEst;
+        int * TxBitsEst;
     
     public:
         Algorithm();
         virtual void execute() = 0;
-        virtual ~Algorithm() = default;
+        virtual ~Algorithm();
         void check();
+        void symbolsToBits();
+        double * getTxSymbolsEst() const { return TxSymbolsEst; }
+        int * getTxBitsEst() const { return TxBitsEst; }
         int getErrorBits() const { return errorBits; }
         int getErrorFrames() const { return errorFrames; }
 };

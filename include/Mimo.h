@@ -24,7 +24,6 @@ class Mimo{
         const int * bitCons;
 
         int * TxBits;
-        int * TxBitsEst;
         double ** H;
         double SNRdB;
         double Nv;
