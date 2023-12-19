@@ -1,6 +1,34 @@
 import mimo as m
+import multiprocessing
+import time
 
-errorBits,errorFrames=m.detection(4,8,4,30,10000)
+TxAntNum = 32
+RxAntNum = 64
+SNR = 10
+ModType = 4
+sample = 100000
 
-print("errorBits: ",errorBits)
-print("errorFrames: ",errorFrames)
+
+
+def run_detection():
+    errorBits, errorFrames = m.detection(TxAntNum, RxAntNum, ModType, SNR, sample)
+
+# Create a list to store the processes
+processes = []
+
+start = time.time()
+
+# Create and start a process for each iteration
+for _ in range(multiprocessing.cpu_count()):
+    process = multiprocessing.Process(target=run_detection)
+    process.start()
+    processes.append(process)
+
+# Wait for all processes to finish
+for process in processes:
+    process.join()
+
+end = time.time()
+print("Time taken: ", end - start)
+ 
+ 
