@@ -17,6 +17,6 @@ class MMSE: public Algorithm {
         MMSE();
         void execute() override;
 
-        ~MMSE();
+        ~MMSE()=default;
 
 };

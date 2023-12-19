@@ -54,6 +54,6 @@ class EP: public Algorithm {
         EP(int iter, double delta);
         void execute() override;
 
-        ~EP();
+        ~EP()=default;
 
 };

@@ -22,10 +22,6 @@ Algorithm::Algorithm(){
     TxBitsEst = new int[TxAntNum2 * bitLength];
 }
 
-Algorithm::~Algorithm(){
-    delete[] TxBitsEst;
-}
-
 
 void Algorithm::check(){
     int currentErrorBits = 0;

@@ -22,7 +22,7 @@ class Algorithm {
     public:
         Algorithm();
         virtual void execute() = 0;
-        virtual ~Algorithm();
+        virtual ~Algorithm()=default;
         void check();
         void symbolsToBits(double * TxSymbolsEst);
 

@@ -13,14 +13,6 @@ MMSE::MMSE(): Algorithm() {
 
 }
 
-MMSE::~MMSE() {
-    delete[] HtH;
-    delete[] HtHInv;
-    delete[] HtR;
-
-    delete[] TxSymbolsEst;
-    delete choleskyInv;
-}
 
 void MMSE::execute() {
 

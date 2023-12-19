@@ -1,6 +1,5 @@
 #include <cstring>
 #include "EP.h"
-
 #include "utils.h"
 
 
@@ -64,53 +63,7 @@ EP::EP(int iter, double delta): Algorithm() {
 
 }
 
-EP::~EP() {
-    delete[] Alpha;
-    delete[] Gamma;
 
-    delete[] AlphaInit;
-
-    delete[] Alpha_new;
-    delete[] Gamma_new;
-
-
-    delete[] sig;
-    delete[] h2;
-    delete[] t;
-
-    for (int i = 0; i < TxAntNum2; i++) {
-        delete[] prob[i];
-    }
-    delete[] prob;
-
-    delete[] sigma2_p;
-
-    delete[] mu_p;
-
-    for (int i = 0; i < TxAntNum2; i++) {
-        delete[] HtH[i];
-    }
-    delete[] HtH;
-
-    for (int i = 0; i < TxAntNum2; i++) {
-        delete[] HtHMod[i];
-    }
-    delete[] HtHMod;
-
-    delete[] HtR;
-
-    for (int i = 0; i < TxAntNum2; i++) {
-        delete[] Sigma_q[i];
-    }
-    delete[] Sigma_q;
-
-    delete[] Mu_q;
-
-    delete choleskyInv;
-
-    delete[] invOneMinusSigAlpha;
-    delete[] HtRAddGamma;
-}
 
 void EP::execute(){
     memcpy(Alpha, AlphaInit, TxAntNum2 * sizeof(double));

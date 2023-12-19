@@ -11,10 +11,6 @@ CholeskyInv::CholeskyInv(int size) {
     y = new double[size];
 }
 
-CholeskyInv::~CholeskyInv() {
-    delete[] L;
-    delete[] y;
-}
 
 void CholeskyInv::execute(double * A, double * AInv) {
     std::memset(L, 0, size * size * sizeof(double));

@@ -12,5 +12,5 @@ class CholeskyInv
         CholeskyInv(int size);
         void execute(double * A, double * AInv);
         void execute(double ** A, double ** AInv);
-        ~CholeskyInv();
+        ~CholeskyInv()=default;
 };
