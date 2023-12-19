@@ -1,4 +1,4 @@
-
+#pragma once
 
 
 class CholeskyInv
@@ -11,5 +11,6 @@ class CholeskyInv
     public:
         CholeskyInv(int size);
         void execute(double * A, double * AInv);
+        void execute(double ** A, double ** AInv);
         ~CholeskyInv();
 };

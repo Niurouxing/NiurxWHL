@@ -21,6 +21,7 @@ class Mimo{
         double * TxSymbols;
         double * RxSymbols;
         const double * Cons;
+        const double * Cons2;
         const int * bitCons;
 
         int * TxBits;
@@ -28,6 +29,7 @@ class Mimo{
         double SNRdB;
         double Nv;
         double sqrtNvDiv2;
+        double NvInv;
 
         void reset();
 

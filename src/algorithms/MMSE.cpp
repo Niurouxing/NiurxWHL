@@ -1,6 +1,3 @@
-#include <cstring>
-#include <cmath>
-
 #include "MMSE.h"  
 
 #include "utils.h"
@@ -10,6 +7,8 @@ MMSE::MMSE(): Algorithm() {
     HtHInv = new double[TxAntNum2 * TxAntNum2];
     HtR = new double[TxAntNum2];
 
+    TxSymbolsEst = new double[TxAntNum2];
+
     choleskyInv = new CholeskyInv(TxAntNum2);
 
 }
@@ -18,6 +17,8 @@ MMSE::~MMSE() {
     delete[] HtH;
     delete[] HtHInv;
     delete[] HtR;
+
+    delete[] TxSymbolsEst;
     delete choleskyInv;
 }
 
@@ -35,6 +36,6 @@ void MMSE::execute() {
      
     MatrixMultiplyVector(HtHInv, HtR, TxAntNum2, TxAntNum2, TxSymbolsEst);
 
-    symbolsToBits();
+    symbolsToBits(TxSymbolsEst);
 }
 

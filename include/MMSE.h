@@ -9,6 +9,8 @@ class MMSE: public Algorithm {
         double * HtHInv;
         double * HtR;
 
+        double * TxSymbolsEst;
+
         CholeskyInv * choleskyInv;
  
     public:

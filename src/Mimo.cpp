@@ -13,16 +13,18 @@ std::mt19937 seedInit() {
     return rng;
 }
 
-static std::mt19937 rng = seedInit();
+
+static std::mt19937 rng1 = seedInit();
+static std::mt19937 rng2 = seedInit();
 static std::normal_distribution<double> distribution(0.0, 1.0);  
-static std::normal_distribution<double> distribution_divSqrt2(0.0, 0.5);  
+static std::normal_distribution<double> distribution_divSqrt2(0.0, std::sqrt(0.5));  
 
 inline double randomGaussian() {
-    return distribution(rng);
+    return distribution(rng1);
 }
 
 inline double randomGaussian_divSqrt2() {
-    return distribution_divSqrt2(rng);
+    return distribution_divSqrt2(rng2);
 }
 
 inline int randomInt(int max) {
@@ -33,6 +35,11 @@ static constexpr double ConsMod2[2] = {0.70710678118, -0.70710678118};
 static constexpr double ConsMod4[4] = {-0.31622776601683794, -0.9486832980505138, 0.31622776601683794, 0.9486832980505138};
 static constexpr double ConsMod6[8] = {-0.4629100498862757, -0.1543033499620919, -0.7715167498104595, -1.0801234497346432, 0.1543033499620919, 0.4629100498862757, 0.7715167498104595, 1.0801234497346432};
 static constexpr double ConsMod8[16] = {-0.3834824944236852, -0.5368754921931592, -0.2300894966542111, -0.07669649888473704, -0.8436614877321074, -0.6902684899626333, -0.9970544855015815, -1.1504474832710556, 0.3834824944236852, 0.5368754921931592, 0.2300894966542111, 0.07669649888473704, 0.8436614877321074, 0.6902684899626333, 0.9970544855015815, 1.1504474832710556};
+
+static constexpr double Cons2Mod2[2] = {0.5, 0.5};
+static constexpr double Cons2Mod4[4] = {0.1, 0.9, 0.1, 0.9};
+static constexpr double Cons2Mod6[8] = {0.214285714285714,   0.023809523809524,   0.595238095238095,   1.166666666666666,   0.023809523809524,  0.214285714285714,   0.595238095238095,   1.166666666666666};
+static constexpr double Cons2Mod8[16] = {0.147058823529412,   0.288235294117647,   0.052941176470588,   0.005882352941176,   0.711764705882353,  0.476470588235294,   0.994117647058823,   1.323529411764706,   0.147058823529412,   0.288235294117647,   0.052941176470588,   0.005882352941176,   0.711764705882353,   0.476470588235294,   0.994117647058823,   1.323529411764706};
 
 
 static constexpr int bitConsMod2[2] = {0, 1};
@@ -85,6 +92,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
             this->bitLength=1;
 
             this->Cons = ConsMod2;
+            this->Cons2 = Cons2Mod2;
             this->bitCons = bitConsMod2;
             break;
         case 4:
@@ -92,6 +100,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
             this->bitLength=2;
 
             this->Cons = ConsMod4;
+            this->Cons2 = Cons2Mod4;
             this->bitCons = bitConsMod4;
             break;
         case 6:
@@ -99,6 +108,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
             this->bitLength=3;
 
             this->Cons = ConsMod6;
+            this->Cons2 = Cons2Mod6;
             this->bitCons = bitConsMod6;
             break;
         case 8:
@@ -106,6 +116,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
             this->bitLength=4;
 
             this->Cons = ConsMod8;
+            this->Cons2 = Cons2Mod8;
             this->bitCons = bitConsMod8;
             break;
     }
@@ -128,6 +139,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
 
     this->Nv = TxAntNum * RxAntNum / (pow(10, SNRdB / 10) * ModType * TxAntNum);
     this->sqrtNvDiv2 = std::sqrt(Nv / 2);
+    this->NvInv = 1 / Nv;
 }
 
 

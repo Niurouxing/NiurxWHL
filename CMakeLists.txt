@@ -1,18 +1,22 @@
 cmake_minimum_required(VERSION 3.4...3.18)
 
 SET(MODNAME "mimo")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 PROJECT(${MODNAME})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROJECT_RELEASE_FLAGS "-O3")
+ 
 
 add_subdirectory(pybind11)
 include_directories(${PROJECT_SOURCE_DIR}/include)
+ 
 
-file(GLOB CPP_FILES "src/*.cpp")
+file(GLOB_RECURSE CPP_FILES "src/*.cpp")
 
 pybind11_add_module(${MODNAME}
     MODULE
@@ -39,8 +43,7 @@ target_compile_definitions(${MODNAME} PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INF
 # # include the headers files in ./include/
 # include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# # include all the cpp files in ./src except the binding.cpp
-# file(GLOB CPP_FILES "src/*.cpp")
+# file(GLOB_RECURSE CPP_FILES "src/*.cpp")
 
 # add_executable(MimoTest test/test.cpp ${CPP_FILES})
 # target_link_libraries(MimoTest -larmadillo)

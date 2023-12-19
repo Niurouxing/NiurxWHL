@@ -19,12 +19,10 @@ Algorithm::Algorithm(){
     ConSize=mimo->ConSize;
     bitLength=mimo->bitLength;
 
-    TxSymbolsEst = new double[TxAntNum2];
     TxBitsEst = new int[TxAntNum2 * bitLength];
 }
 
 Algorithm::~Algorithm(){
-    delete[] TxSymbolsEst;
     delete[] TxBitsEst;
 }
 
@@ -42,7 +40,7 @@ void Algorithm::check(){
     }
 }
 
-void Algorithm::symbolsToBits(){
+void Algorithm::symbolsToBits(double * TxSymbolsEst){
     for(int i=0;i<TxAntNum2;i++){
         double minDistance = 100000000;
         int minIndex = 0;
