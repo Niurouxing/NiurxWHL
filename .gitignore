@@ -2,6 +2,7 @@ build/
 dist/
 mimo/
 _build/
+.DS_Store
 _generate/
 *.so
 *.py[cod]
