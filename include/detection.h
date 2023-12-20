@@ -5,9 +5,7 @@ class Detection{
         static Detection * detection;
         Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
-        void generateChannel();
-        void generateTxSignals();
-        void generateRxSignalsWithNoise();
+
     public:
         Detection(const Detection&) = delete;
         Detection& operator=(const Detection&) = delete;
@@ -30,8 +28,9 @@ class Detection{
         double Nv;
         double sqrtNvDiv2;
         double NvInv;
-
-        void reset();
-
+        void generateChannel();
+        void generateTxSignals();
+        void generateRxSignalsWithNoise();
+        void generate();
         ~Detection()=default;
 };

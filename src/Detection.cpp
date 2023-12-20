@@ -185,7 +185,7 @@ void Detection::generateRxSignalsWithNoise(){
     }
 }
 
-void Detection::reset(){
+void Detection::generate(){
     generateChannel();
     generateTxSignals();
     generateRxSignalsWithNoise();

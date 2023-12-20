@@ -70,7 +70,7 @@ int main(){
     Algorithm * alg = new EP(5,0.9);
     // Algorithm * alg = new MMSE();
 
-    Detection::getDetection()->reset();
+    Detection::getDetection()->generate();
 
     std::cout << "H : " << std::endl;
     printMatrix(Detection::getDetection()->H, Detection::getDetection()->RxAntNum2, Detection::getDetection()->TxAntNum2);
@@ -91,7 +91,7 @@ int main(){
     
 
     for (int i = 0; i < 10000; i++) {
-        Detection::getDetection()->reset();
+        Detection::getDetection()->generate();
         alg->execute();
         alg->check();
     }

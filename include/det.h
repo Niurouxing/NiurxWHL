@@ -8,9 +8,9 @@
 
 std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
     Detection::createDetection(TxAntNum, RxAntNum, ModType, SNRdB);
-    Algorithm * alg = new EP(5,0.9);
+    Algorithm * alg = new MMSE();
     for (int i = 0; i < sample; i++) {
-        Detection::getDetection()->reset();
+        Detection::getDetection()->generate();
         alg->execute();
         alg->check();
     }
