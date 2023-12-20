@@ -66,7 +66,7 @@ EP::EP(int iter, double delta): Algorithm() {
 
 
 void EP::execute(){
-    memcpy(Alpha, AlphaInit, TxAntNum2 * sizeof(double));
+    std::memcpy(Alpha, AlphaInit, TxAntNum2 * sizeof(double));
     memset(Gamma, 0, TxAntNum2 * sizeof(double));
     memset(Alpha_new, 0, TxAntNum2 * sizeof(double));
     memset(Gamma_new, 0, TxAntNum2 * sizeof(double));
