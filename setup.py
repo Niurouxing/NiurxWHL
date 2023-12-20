@@ -114,11 +114,7 @@ class CMakeBuild(build_ext):
         build_temp = Path(self.build_temp) / ext.name
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
-        # save cmake_args and build_args to "C:\Users\Niurouxing\Desktop\pybind11win\arg.txt"
-        with open("C:\\Users\\Niurouxing\\Desktop\\pybind11win\\arg.txt", "w") as f:
-            f.write(str(cmake_args))
-            f.write(str(build_args))
-
+            
         subprocess.run(
             ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
         )
