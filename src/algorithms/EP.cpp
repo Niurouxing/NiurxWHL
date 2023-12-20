@@ -8,7 +8,6 @@ EP::EP(int iter, double delta): Algorithm() {
     this -> iter = iter;
     this -> delta = delta;
 
-    choleskyInv = new CholeskyInv(TxAntNum2);
 
     NvInv = detection -> NvInv;
     Cons2 = detection -> Cons2;
@@ -31,7 +30,7 @@ EP::EP(int iter, double delta): Algorithm() {
 
     prob = new double*[TxAntNum2];
     for (int i = 0; i < TxAntNum2; i++) {
-        prob[i] = new double[2];
+        prob[i] = new double[ConSize];
     }
 
     sigma2_p = new double[TxAntNum2];

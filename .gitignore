@@ -1,6 +1,5 @@
 build/
 dist/
-mimo/
 _build/
 _generate/
 *.so
