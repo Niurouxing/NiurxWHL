@@ -8,53 +8,53 @@
 
  
 
-static std::mt19937 rng(123456);
-static std::normal_distribution<double> distribution(0.0, 1.0);  
-inline double randomGaussian() {
-    return distribution(rng);
-}
+// static std::mt19937 rng(123456);
+// static std::normal_distribution<double> distribution(0.0, 1.0);  
+// inline double randomGaussian() {
+//     return distribution(rng);
+// }
 
 int main(){
 
 
-    int row=5;
-    int col=3;
+    // int row=5;
+    // int col=3;
 
-    double ** matrix = new double*[row];
-    for (int i = 0; i < row; i++) {
-        matrix[i] = new double[col];
-    }
+    // double ** matrix = new double*[row];
+    // for (int i = 0; i < row; i++) {
+    //     matrix[i] = new double[col];
+    // }
 
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++){
-            matrix[i][j] = randomGaussian();
-        }
-    }
+    // for (int i = 0; i < row; i++) {
+    //     for (int j = 0; j < col; j++){
+    //         matrix[i][j] = randomGaussian();
+    //     }
+    // }
 
-    std::cout << "Matrix : " << std::endl;
-    printMatrix(matrix, row, col);
+    // std::cout << "Matrix : " << std::endl;
+    // printMatrix(matrix, row, col);
 
-    double ** matrixTMatrix = new double*[col];
-    for (int i = 0; i < col; i++) {
-        matrixTMatrix[i] = new double[col];
-    }
+    // double ** matrixTMatrix = new double*[col];
+    // for (int i = 0; i < col; i++) {
+    //     matrixTMatrix[i] = new double[col];
+    // }
 
-    MatrixTransposeMultiplyMatrix(matrix, matrix, row, col, col, matrixTMatrix);
+    // MatrixTransposeMultiplyMatrix(matrix, matrix, row, col, col, matrixTMatrix);
 
-    std::cout << "MatrixTMatrix : " << std::endl;
-    printMatrix(matrixTMatrix, col, col);
+    // std::cout << "MatrixTMatrix : " << std::endl;
+    // printMatrix(matrixTMatrix, col, col);
 
-    CholeskyInv * choleskyInv = new CholeskyInv(col);
+    // CholeskyInv * choleskyInv = new CholeskyInv(col);
 
-    double ** matrixTMatrixInv = new double*[col];
-    for (int i = 0; i < col; i++) {
-        matrixTMatrixInv[i] = new double[col];
-    }
+    // double ** matrixTMatrixInv = new double*[col];
+    // for (int i = 0; i < col; i++) {
+    //     matrixTMatrixInv[i] = new double[col];
+    // }
 
-    choleskyInv->execute(matrixTMatrix, matrixTMatrixInv);
+    // choleskyInv->execute(matrixTMatrix, matrixTMatrixInv);
 
-    std::cout << "MatrixTMatrixInv : " << std::endl;
-    printMatrix(matrixTMatrixInv, col, col);
+    // std::cout << "MatrixTMatrixInv : " << std::endl;
+    // printMatrix(matrixTMatrixInv, col, col);
 
 
 

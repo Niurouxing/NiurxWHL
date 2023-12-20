@@ -1,6 +1,7 @@
 #include <cstring>
 #include "EP.h"
 #include "utils.h"
+#include <cmath>
 
 
 EP::EP(int iter, double delta): Algorithm() {

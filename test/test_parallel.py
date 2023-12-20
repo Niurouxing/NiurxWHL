@@ -1,9 +1,13 @@
+import os
+# os.add_dll_directory("C:/Program Files/mingw64/bin")
+
 import mimo as m
 import multiprocessing
 import time
 from tqdm import tqdm
-import os
+
 import numpy as np
+
 
 TxAntNum = 32
 RxAntNum = 64
@@ -15,8 +19,8 @@ endSNR=25
 stepSNR=3
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
-target = 20000
-samplesPreIter=100
+target = 200000
+samplesPreIter=1000
 
 
 def worker(queue,samples,snr):
@@ -30,7 +34,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = 4
+        num_processes = os.cpu_count() 
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:
