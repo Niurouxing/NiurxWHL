@@ -4,20 +4,20 @@
 
 
 Algorithm::Algorithm(){
-    mimo = Mimo::getMimo();
+    detection = Detection::getDetection();
     errorBits = 0;
     errorFrames = 0;
 
-    H=mimo->H;
-    RxSymbols=mimo->RxSymbols;
-    Cons=mimo->Cons;
-    bitCons=mimo->bitCons;
-    Nv=mimo->Nv;
+    H=detection->H;
+    RxSymbols=detection->RxSymbols;
+    Cons=detection->Cons;
+    bitCons=detection->bitCons;
+    Nv=detection->Nv;
 
-    TxAntNum2=mimo->TxAntNum2;
-    RxAntNum2=mimo->RxAntNum2;
-    ConSize=mimo->ConSize;
-    bitLength=mimo->bitLength;
+    TxAntNum2=detection->TxAntNum2;
+    RxAntNum2=detection->RxAntNum2;
+    ConSize=detection->ConSize;
+    bitLength=detection->bitLength;
 
     TxBitsEst = new int[TxAntNum2 * bitLength];
 }
@@ -25,8 +25,8 @@ Algorithm::Algorithm(){
 
 void Algorithm::check(){
     int currentErrorBits = 0;
-    for (int i = 0; i < mimo->TxAntNum2 * mimo->bitLength; i++) {
-        if (mimo->TxBits[i] != TxBitsEst[i]) {
+    for (int i = 0; i < detection->TxAntNum2 * detection->bitLength; i++) {
+        if (detection->TxBits[i] != TxBitsEst[i]) {
             currentErrorBits++;
         }
     }

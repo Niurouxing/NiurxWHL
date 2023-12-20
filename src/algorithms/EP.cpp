@@ -9,8 +9,8 @@ EP::EP(int iter, double delta): Algorithm() {
 
     choleskyInv = new CholeskyInv(TxAntNum2);
 
-    NvInv = mimo -> NvInv;
-    Cons2 = mimo -> Cons2;
+    NvInv = detection -> NvInv;
+    Cons2 = detection -> Cons2;
 
     Alpha = new double[TxAntNum2];
     Gamma = new double[TxAntNum2];

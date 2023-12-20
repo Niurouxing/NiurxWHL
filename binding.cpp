@@ -35,15 +35,15 @@ namespace py = pybind11;
 //     bind_Detection(m);
 // }
 
-#include "detection.h"
+#include "det.h"
 
-void bind_detection(py::module &m) {
+void bind_det(py::module &m) {
     m.def(
-        "detection",
-        &detection
+        "det",
+        &det
     );
 }
 
 PYBIND11_MODULE(mimo, m) {
-    bind_detection(m);
+    bind_det(m);
 }

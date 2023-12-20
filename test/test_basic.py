@@ -18,7 +18,7 @@ sample = 10000
 
 
 def run_detection():
-    errorBits, errorFrames = m.detection(TxAntNum, RxAntNum, ModType, SNR, sample)
+    errorBits, errorFrames = m.det(TxAntNum, RxAntNum, ModType, SNR, sample)
 
 if __name__ == "__main__":
 

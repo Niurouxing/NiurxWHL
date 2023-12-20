@@ -1,11 +1,11 @@
 #pragma once
-#include "Mimo.h"
+#include "Detection.h"
 
 
 // class Algorithm, a virtual base class for all Mimo detection algorithms
 class Algorithm {
     protected:
-        Mimo * mimo;
+        Detection * detection;
         int errorBits;
         int errorFrames;
 

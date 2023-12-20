@@ -1,6 +1,6 @@
 #include "MMSE.h"
 #include "utils.h"
-#include "Mimo.h"
+#include "Detection.h"
 #include "EP.h"
 
 #include <iostream>
@@ -59,39 +59,39 @@ int main(){
 
 
 
-    Mimo::createMimo(8,16,4,10);
+    Detection::createDetection(8,16,4,10);
 
     std::cout << "Cons : " << std::endl;
-    printVector(Mimo::getMimo()->Cons, Mimo::getMimo()->ConSize);
+    printVector(Detection::getDetection()->Cons, Detection::getDetection()->ConSize);
 
     std::cout << "bitCons : " << std::endl;
-    printVector(Mimo::getMimo()->bitCons, Mimo::getMimo()->ConSize * Mimo::getMimo()->bitLength);
+    printVector(Detection::getDetection()->bitCons, Detection::getDetection()->ConSize * Detection::getDetection()->bitLength);
 
     Algorithm * alg = new EP(5,0.9);
     // Algorithm * alg = new MMSE();
 
-    Mimo::getMimo()->reset();
+    Detection::getDetection()->reset();
 
     std::cout << "H : " << std::endl;
-    printMatrix(Mimo::getMimo()->H, Mimo::getMimo()->RxAntNum2, Mimo::getMimo()->TxAntNum2);
+    printMatrix(Detection::getDetection()->H, Detection::getDetection()->RxAntNum2, Detection::getDetection()->TxAntNum2);
 
     std::cout << "RxSymbols : " << std::endl;
-    printVector(Mimo::getMimo()->RxSymbols, Mimo::getMimo()->RxAntNum2);
+    printVector(Detection::getDetection()->RxSymbols, Detection::getDetection()->RxAntNum2);
 
     std::cout << "TxSymbols : " << std::endl;
-    printVector(Mimo::getMimo()->TxSymbols, Mimo::getMimo()->TxAntNum2);
+    printVector(Detection::getDetection()->TxSymbols, Detection::getDetection()->TxAntNum2);
 
     std::cout << "TxBits : " << std::endl;
-    printMatrix(Mimo::getMimo()->TxBits, Mimo::getMimo()->TxAntNum2, Mimo::getMimo()->bitLength);
+    printMatrix(Detection::getDetection()->TxBits, Detection::getDetection()->TxAntNum2, Detection::getDetection()->bitLength);
 
     alg->execute();
 
     std::cout << "TxBitsEst : " << std::endl;
-    printMatrix(alg->getTxBitsEst(), Mimo::getMimo()->TxAntNum2, Mimo::getMimo()->bitLength);
+    printMatrix(alg->getTxBitsEst(), Detection::getDetection()->TxAntNum2, Detection::getDetection()->bitLength);
     
 
     for (int i = 0; i < 10000; i++) {
-        Mimo::getMimo()->reset();
+        Detection::getDetection()->reset();
         alg->execute();
         alg->check();
     }

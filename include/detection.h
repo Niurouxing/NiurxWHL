@@ -1,18 +1,37 @@
 #pragma once
-#include <tuple>
-#include "MMSE.h"
-#include "EP.h"
-#include "utils.h"
-#include "Mimo.h"
+
+class Detection{
+    private:
+        static Detection * detection;
+        Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
+
+        void generateChannel();
+        void generateTxSignals();
+        void generateRxSignalsWithNoise();
+    public:
+        Detection(const Detection&) = delete;
+        Detection& operator=(const Detection&) = delete;
+
+        static void createDetection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
+        static Detection * getDetection();
 
 
-std::tuple<int,int> detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
-    Mimo::createMimo(TxAntNum, RxAntNum, ModType, SNRdB);
-    Algorithm * alg = new EP(5,0.9);
-    for (int i = 0; i < sample; i++) {
-        Mimo::getMimo()->reset();
-        alg->execute();
-        alg->check();
-    }
-    return std::make_tuple(alg->getErrorBits(), alg->getErrorFrames());
-}
+        int TxAntNum, RxAntNum, ModType, ConSize, bitLength;
+        int TxAntNum2, RxAntNum2;
+        double * TxSymbols;
+        double * RxSymbols;
+        const double * Cons;
+        const double * Cons2;
+        const int * bitCons;
+
+        int * TxBits;
+        double ** H;
+        double SNRdB;
+        double Nv;
+        double sqrtNvDiv2;
+        double NvInv;
+
+        void reset();
+
+        ~Detection()=default;
+};

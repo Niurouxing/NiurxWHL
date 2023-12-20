@@ -4,7 +4,7 @@
  
 
 #include "utils.h"
-#include "Mimo.h"
+#include "Detection.h"
 
 std::mt19937 seedInit() {
     std::random_device rd;
@@ -72,20 +72,20 @@ static constexpr int bitConsMod8[64] = {0, 0, 0, 0,
                                         1, 1, 1, 0,
                                         1, 1, 1, 1};
 
-Mimo* Mimo::mimo = nullptr;
+Detection* Detection::detection = nullptr;
 
-void Mimo::createMimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
-    if (mimo == nullptr) {
-        mimo = new Mimo(TxAntNum, RxAntNum, ModType, SNRdB);
+void Detection::createDetection(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
+    if (detection == nullptr) {
+        detection = new Detection(TxAntNum, RxAntNum, ModType, SNRdB);
     }
 }
 
-Mimo * Mimo::getMimo(){
-    return mimo;
+Detection * Detection::getDetection(){
+    return detection;
 }
 
 
-Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
+Detection::Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
     switch (ModType) {
         case 2:
             this->ConSize=2;
@@ -144,7 +144,7 @@ Mimo::Mimo(int TxAntNum, int RxAntNum, int ModType, double SNRdB){
 
 
 
-void Mimo::generateChannel(){
+void Detection::generateChannel(){
 
     static double randomTemp;
 
@@ -161,7 +161,7 @@ void Mimo::generateChannel(){
     }
 }
 
-void Mimo::generateTxSignals(){
+void Detection::generateTxSignals(){
 
     static int index;
 
@@ -174,7 +174,7 @@ void Mimo::generateTxSignals(){
     }
 }
 
-void Mimo::generateRxSignalsWithNoise(){
+void Detection::generateRxSignalsWithNoise(){
 
     for (int r = 0; r < RxAntNum2; r++) {
         RxSymbols[r] = 0;
@@ -185,7 +185,7 @@ void Mimo::generateRxSignalsWithNoise(){
     }
 }
 
-void Mimo::reset(){
+void Detection::reset(){
     generateChannel();
     generateTxSignals();
     generateRxSignalsWithNoise();
