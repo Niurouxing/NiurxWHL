@@ -1,16 +1,25 @@
+
+#include "CholeskyInv.h"
 #include "MMSE.h"  
 
 #include "utils.h"
 
-MMSE::MMSE(): Algorithm() {
+MMSE::MMSE(): DetectionAlgorithmRD() {
+    HtH = nullptr;
+    HtHInv = nullptr;
+    HtR = nullptr;
+    TxSymbolsEst = nullptr;
+    choleskyInv = nullptr;
+}
+
+void MMSE::bind(Detection* detection) {
+    DetectionAlgorithmRD::bind(detection);
+
     HtH = new double[TxAntNum2 * TxAntNum2];
     HtHInv = new double[TxAntNum2 * TxAntNum2];
     HtR = new double[TxAntNum2];
-
     TxSymbolsEst = new double[TxAntNum2];
-
     choleskyInv = new CholeskyInv(TxAntNum2);
-
 }
 
 

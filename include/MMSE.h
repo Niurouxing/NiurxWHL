@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Algorithm.h"
-#include "CholeskyInv.h"
+#include "DetectionAlgorithm.h"
 
-class MMSE: public Algorithm {
+class CholeskyInv;
+
+class MMSE: public DetectionAlgorithmRD {
     private:
         double * HtH;
         double * HtHInv;
@@ -15,6 +16,7 @@ class MMSE: public Algorithm {
  
     public:
         MMSE();
+        void bind(Detection* detection) override;
         void execute() override;
 
         ~MMSE()=default;

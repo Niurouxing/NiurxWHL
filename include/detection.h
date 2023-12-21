@@ -1,17 +1,9 @@
 #pragma once
 
 class Detection{
-    private:
-        static Detection * detection;
-        Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
-
-
     public:
-        Detection(const Detection&) = delete;
-        Detection& operator=(const Detection&) = delete;
 
-        static void createDetection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
-        static Detection * getDetection();
+        Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
         // used in both real and complex domain
         int TxAntNum, RxAntNum, ModType, ConSize, bitLength;
@@ -23,6 +15,17 @@ class Detection{
         double sqrtNvDiv2;
         double NvInv;
 
+        virtual void generateChannel()=0;
+        virtual void generateTxSignals()=0;
+        virtual void generateRxSignalsWithNoise()=0;
+        virtual void generate();
+        virtual ~Detection()=default;
+};
+
+
+class DetectionRD : public Detection{
+    public:
+        DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
         // used in real domain
         double * TxSymbols;
@@ -32,13 +35,11 @@ class Detection{
         const double * Cons2;
         const int * bitCons;
 
+        void generateChannel() override;
+        void generateTxSignals() override;
+        void generateRxSignalsWithNoise() override;
+
+        ~DetectionRD() override = default;
 
 
-
-
-        void generateChannel();
-        void generateTxSignals();
-        void generateRxSignalsWithNoise();
-        void generate();
-        ~Detection()=default;
 };

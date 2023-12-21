@@ -2,15 +2,41 @@
 #include "EP.h"
 #include "utils.h"
 #include <cmath>
+#include <Detection.h>
 
 
-EP::EP(int iter, double delta): Algorithm() {
+EP::EP(int iter, double delta): DetectionAlgorithmRD() {
     this -> iter = iter;
     this -> delta = delta;
 
+    NvInv = 0;
+    Cons2 = nullptr;
+    Alpha = nullptr;
+    Gamma = nullptr;
+    AlphaInit = nullptr;
+    Alpha_new = nullptr;
+    Gamma_new = nullptr;
+    sig = nullptr;
+    h2 = nullptr;
+    t = nullptr;
+    prob = nullptr;
+    sigma2_p = nullptr;
+    mu_p = nullptr;
+    HtH = nullptr;
+    HtHMod = nullptr;
+    HtR = nullptr;
+    Sigma_q = nullptr;
+    Mu_q = nullptr;
+    choleskyInv = nullptr;
+    invOneMinusSigAlpha = nullptr;
+    HtRAddGamma = nullptr;
+}
 
-    NvInv = detection -> NvInv;
-    Cons2 = detection -> Cons2;
+void EP::bind(Detection* detection) {
+    DetectionAlgorithmRD::bind(detection);
+
+    NvInv = detectionRD -> NvInv;
+    Cons2 = detectionRD -> Cons2;
 
     Alpha = new double[TxAntNum2];
     Gamma = new double[TxAntNum2];
@@ -60,9 +86,7 @@ EP::EP(int iter, double delta): Algorithm() {
 
     invOneMinusSigAlpha = new double[TxAntNum2];
     HtRAddGamma = new double[TxAntNum2];
-
 }
-
 
 
 void EP::execute(){

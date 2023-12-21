@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Algorithm.h"
+#include "DetectionAlgorithm.h"
 #include "CholeskyInv.h"
 
-class EP: public Algorithm {
+class EP: public DetectionAlgorithmRD {
     private:
         int iter;
         double delta;
@@ -52,6 +52,7 @@ class EP: public Algorithm {
  
     public:
         EP(int iter, double delta);
+        void bind(Detection* detection) override;
         void execute() override;
 
         ~EP()=default;
