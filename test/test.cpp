@@ -10,14 +10,14 @@
 
 int main(){
 
-    int TxAntNum = 32;
-    int RxAntNum = 64;
+    int TxAntNum = 16;
+    int RxAntNum = 32;
     int ModType = 4;
-    double SNRdB = 15;
+    double SNRdB = 10;
     int sample = 1000;
 
-    Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new EP(5,0.9);
+    Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm * alg = new MMSECD();
 
     alg->bind(det);
 

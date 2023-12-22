@@ -13,7 +13,7 @@ class DetectionAlgorithm {
         int errorFrames;
 
         double  Nv;
-        int TxAntNum, RxAntNum, TxAntNum2, RxAntNum2, ConSize, bitLength;
+        int TxAntNum, RxAntNum, ConSize, bitLength;
 
         int * TxBitsEst;
     
@@ -32,6 +32,7 @@ class DetectionAlgorithm {
 class DetectionAlgorithmRD : public DetectionAlgorithm {
     protected:
         DetectionRD * detectionRD;
+        int TxAntNum2, RxAntNum2;
         double ** H;
         double * RxSymbols;
         const double * Cons;

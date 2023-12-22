@@ -110,7 +110,7 @@ inline void MatrixMultiplyMatrix(double** Mat1, double** Mat2, int row1, int col
 inline void MatrixMultiplyMatrix(std::complex<double>** Mat1, std::complex<double>** Mat2, int row1, int col1, int col2, std::complex<double>** result) {
     for (int i = 0; i < row1; i++) {
         for (int j = 0; j < col2; j++) {
-            result[i][j] = 0;
+            result[i][j] = std::complex<double>(0, 0);
             for (int k = 0; k < col1; k++) {
                 result[i][j] += Mat1[i][k] * Mat2[k][j];
             }
@@ -154,7 +154,7 @@ inline void MatrixTransposeMultiplyMatrix(double** Mat1, double** Mat2, int row1
 inline void MatrixTransposeMultiplyMatrix(std::complex<double>** Mat1, std::complex<double>** Mat2, int row1, int col1, int col2, std::complex<double>** result) {
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < col2; j++) {
-            result[i][j] = 0;
+            result[i][j] = std::complex<double>(0, 0);
             for (int k = 0; k < row1; k++) {
                 result[i][j] += std::conj(Mat1[k][i]) * Mat2[k][j];
             }

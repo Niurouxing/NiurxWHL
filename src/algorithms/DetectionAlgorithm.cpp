@@ -115,8 +115,6 @@ void DetectionAlgorithmCD::bind(Detection *detection)
     Nv = cd->Nv;
     TxAntNum = cd->TxAntNum;
     RxAntNum = cd->RxAntNum;
-    TxAntNum2 = cd->TxAntNum2;
-    RxAntNum2 = cd->RxAntNum2;
     ConSize = cd->ConSize;
     bitLength = cd->bitLength;
 
@@ -133,7 +131,7 @@ void DetectionAlgorithmCD::bind(Detection *detection)
 void DetectionAlgorithmCD::check()
 {
     int currentErrorBits = 0;
-    for (int i = 0; i < detection->TxAntNum2 * detection->bitLength; i++)
+    for (int i = 0; i < detection->TxAntNum * detection->bitLength; i++)
     {
         if (detection->TxBits[i] != TxBitsEst[i])
         {
@@ -149,7 +147,7 @@ void DetectionAlgorithmCD::check()
 
 void DetectionAlgorithmCD::symbolsToBits(std::complex<double> *TxSymbolsEst)
 {
-    for (int i = 0; i < TxAntNum2; i++)
+    for (int i = 0; i < TxAntNum; i++)
     {
         double minDistance = 100000000;
         int minIndex = 0;

@@ -11,7 +11,7 @@ std::mt19937 seedInit()
 {
     std::random_device rd;
     auto seed = rd() ^ std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    std::mt19937 rng(seed);
+    std::mt19937 rng(123);
     return rng;
 }
 
@@ -223,7 +223,7 @@ void DetectionCD::generateChannel()
         {
             randomTemp1 = randomGaussian_divSqrt2();
             randomTemp2 = randomGaussian_divSqrt2();
-            H[r][t] = std::complex<double>(randomTemp1, randomTemp2) * sqrtNvDiv2;
+            H[r][t] = std::complex<double>(randomTemp1, randomTemp2); 
         }
     }
 }
