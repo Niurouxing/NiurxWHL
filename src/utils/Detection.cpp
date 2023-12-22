@@ -11,7 +11,7 @@ std::mt19937 seedInit()
 {
     std::random_device rd;
     auto seed = rd() ^ std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    std::mt19937 rng(123);
+    std::mt19937 rng(seed);
     return rng;
 }
 
