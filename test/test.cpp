@@ -13,8 +13,8 @@ int main(){
     int TxAntNum = 32;
     int RxAntNum = 64;
     int ModType = 4;
-    double SNRdB = 10;
-    int sample = 10000;
+    double SNRdB = 15;
+    int sample = 1000;
 
     Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
     DetectionAlgorithm * alg = new EP(5,0.9);

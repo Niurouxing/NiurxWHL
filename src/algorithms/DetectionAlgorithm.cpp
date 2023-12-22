@@ -89,3 +89,86 @@ void DetectionAlgorithmRD::symbolsToBits(double *TxSymbolsEst)
         }
     }
 }
+
+DetectionAlgorithmCD::DetectionAlgorithmCD() : DetectionAlgorithm()
+{
+    H = nullptr;
+    RxSymbols = nullptr;
+    ConsComplex = nullptr;
+    ConsReal = nullptr;
+    bitConsComplex = nullptr;
+    bitConsReal = nullptr;
+}
+
+void DetectionAlgorithmCD::bind(Detection *detection)
+{
+    //  transfer the pointer of detection to the pointer of DetectionCD, use dynamic_cast
+    DetectionCD *cd = dynamic_cast<DetectionCD *>(detection);
+    if (cd == nullptr)
+    {
+        throw std::runtime_error("only DetectionCD can be binded to DetectionAlgorithmCD");
+    }
+
+    this->detection = detection;
+    this->detectionCD = cd;
+
+    Nv = cd->Nv;
+    TxAntNum = cd->TxAntNum;
+    RxAntNum = cd->RxAntNum;
+    TxAntNum2 = cd->TxAntNum2;
+    RxAntNum2 = cd->RxAntNum2;
+    ConSize = cd->ConSize;
+    bitLength = cd->bitLength;
+
+    H = cd->H;
+    RxSymbols = cd->RxSymbols;
+    ConsComplex = cd->ConsComplex;
+    ConsReal = cd->ConsReal;
+    bitConsComplex = cd->bitConsComplex;
+    bitConsReal = cd->bitConsReal;
+
+    TxBitsEst = new int[TxAntNum * bitLength];
+}
+
+void DetectionAlgorithmCD::check()
+{
+    int currentErrorBits = 0;
+    for (int i = 0; i < detection->TxAntNum2 * detection->bitLength; i++)
+    {
+        if (detection->TxBits[i] != TxBitsEst[i])
+        {
+            currentErrorBits++;
+        }
+    }
+    if (currentErrorBits > 0)
+    {
+        errorFrames++;
+        errorBits += currentErrorBits;
+    }
+}
+
+void DetectionAlgorithmCD::symbolsToBits(std::complex<double> *TxSymbolsEst)
+{
+    for (int i = 0; i < TxAntNum2; i++)
+    {
+        double minDistance = 100000000;
+        int minIndex = 0;
+
+        for (int j = 0; j < ConSize; j++)
+        {
+            double distance = 0;
+            distance = std::abs(TxSymbolsEst[i] - ConsComplex[j]);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                minIndex = j;
+            }
+        }
+
+        for (int j = 0; j < bitLength; j++)
+        {
+            TxBitsEst[i * bitLength + j] = bitConsComplex[minIndex * bitLength + j];
+        }
+    }
+}
