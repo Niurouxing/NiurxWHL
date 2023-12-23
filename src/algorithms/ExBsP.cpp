@@ -3,6 +3,7 @@
 #include "CholeskyInv.h"
 #include "utils.h"
 #include "Detection.h"
+#include <cstring>
 
 ExBsPCD::ExBsPCD(int iter, int dm) : DetectionAlgorithmCD()
 {
@@ -230,7 +231,6 @@ void ExBsPCD::execute()
             }
         }
 
-        // printMatrix(gamma, TxAntNum, ConSize, "gamma");
 
         for (int j = 0; j < RxAntNum; j++)
         {
@@ -244,8 +244,6 @@ void ExBsPCD::execute()
                 }
 
                 maxk(alpha_ems, ConSize, idx_ems, dm);
-                // printVector(alpha_ems, ConSize, "alpha_ems");
-                // printVector(idx_ems, dm, "idx_ems");
 
                 double expAlphaSum = 0;
                 for (int k = 0; k < dm; k++)
@@ -257,6 +255,7 @@ void ExBsPCD::execute()
                 memset(Px[i][j], 0, ConSize * sizeof(double));
                 for (int k = 0; k < dm; k++)
                 {
+                    sIndex[i][j][k] = idx_ems[k];
                     Px[i][j][idx_ems[k]] = expAlpha[k] / expAlphaSum;
                 }
             }

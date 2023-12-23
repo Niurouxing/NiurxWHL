@@ -4,16 +4,19 @@
 #include "EP.h"
 #include "utils.h"
 #include "Detection.h"
+#include "ExBsP.h"
+
 
 
 std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
 
-    Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new MMSE();
+    Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm * alg = new ExBsPCD(3, 8);
+
 
     alg->bind(det);
 
-    auto start = std::chrono::high_resolution_clock::now();
+ 
 
     for(int i=0;i<sample;i++){
         det->generate();
