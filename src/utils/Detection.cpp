@@ -202,6 +202,7 @@ DetectionCD::DetectionCD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) 
         break;
     }
 
+    this->TxIndiceCD = new int[TxAntNum];
     this->TxSymbols = new std::complex<double>[TxAntNum];
     this->RxSymbols = new std::complex<double>[RxAntNum];
 
@@ -237,6 +238,7 @@ void DetectionCD::generateTxSignals()
     {
         index = randomInt(ConSize);
         TxSymbols[i] = ConsComplex[index];
+        TxIndiceCD[i] = index;
         for (int b = 0; b < bitLength; b++)
         {
             TxBits[i * bitLength + b] = bitConsComplex[index * bitLength + b];

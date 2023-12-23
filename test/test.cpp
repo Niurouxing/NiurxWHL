@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "Detection.h"
 #include "EP.h"
+#include "ExBsP.h"
 
 #include <iostream>
 #include <chrono>
@@ -10,14 +11,14 @@
 
 int main(){
 
-    int TxAntNum = 16;
-    int RxAntNum = 32;
+    int TxAntNum = 32;
+    int RxAntNum = 64;
     int ModType = 4;
-    double SNRdB = 10;
-    int sample = 100000;
+    double SNRdB = 30;
+    int sample = 1000;
 
-    Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new MMSE();
+    Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm * alg = new ExBsPCD(4, 3);
 
     alg->bind(det);
 

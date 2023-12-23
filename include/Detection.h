@@ -54,6 +54,7 @@ class DetectionCD : public Detection{
         std::complex<double> ** H;
         std::complex<double> * RxSymbols;
 
+        int* TxIndiceCD;
         const double * ConsReal;
         const std::complex<double> * ConsComplex;
 
