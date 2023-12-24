@@ -11,14 +11,14 @@
 
 int main(){
 
-    int TxAntNum = 64;
-    int RxAntNum = 128;
+    int TxAntNum = 8;
+    int RxAntNum = 16;
     int ModType = 8;
-    double SNRdB = 13;
+    double SNRdB = 30;
     int sample = 1000;
 
     Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new ExBsPCD(3, 8);
+    DetectionAlgorithm * alg = new ExBsPCD(3, 4);
 
     alg->bind(det);
 

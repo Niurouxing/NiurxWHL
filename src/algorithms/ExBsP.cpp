@@ -49,7 +49,7 @@ void ExBsPCD::bind(Detection *detection)
 
     HtR = new std::complex<double>[TxAntNum];
 
-    choleskyInv = new CholeskyInv(TxAntNum,true);
+    choleskyInv = new CholeskyInv(TxAntNum, true);
 
     gamma = new double *[TxAntNum];
     for (int i = 0; i < TxAntNum; i++)
@@ -126,28 +126,22 @@ void ExBsPCD::execute()
     // meanwhile, initialize gamma, alpha, Px, sIndex
 
     // usually, use i for TxAntNum, j for RxAntNum, k for ConSize
+
     for (int i = 0; i < TxAntNum; i++)
     {
         std::complex<double> MMSEEst = 0;
         for (int j = 0; j < TxAntNum; j++)
-        { // exception, j iterate TxAntNum here
+        {
             MMSEEst += HtHInv[i][j] * HtR[j];
         }
 
         double minDist = 1e10;
         int bestIndex = 0;
-        // gamma[i][k] = - abs ( Cons[k] - MMSEres )
         for (int k = 0; k < ConSize; k++)
         {
             double dist = std::abs(ConsComplex[k] - MMSEEst);
             distList[k] = dist;
-            gamma[i][k] = -dist;
-
-            // initialize alpha
-            for (int j = 0; j < RxAntNum; j++)
-            {
-                alpha[i][j][k] = -dist;
-            }
+            gamma[i][k] = -dist; // This is important for the std::copy_n later
 
             if (dist < minDist)
             {
@@ -156,26 +150,20 @@ void ExBsPCD::execute()
             }
         }
 
-        // initialize Px, the probability of the best symbol is 1, others are 0
-        // the 0 is gruanteed by memset
         for (int j = 0; j < RxAntNum; j++)
         {
+            std::copy_n(gamma[i], ConSize, alpha[i][j]); // Copy gamma[i] to each alpha[i][j]
             memset(Px[i][j], 0, ConSize * sizeof(double));
             Px[i][j][bestIndex] = 1;
         }
 
-        // initialize sIndex with the dm most least distance symbols
         mink(distList, ConSize, minkRes, dm);
         for (int j = 0; j < RxAntNum; j++)
         {
-            for (int k = 0; k < dm; k++)
-            {
-                sIndex[i][j][k] = minkRes[k];
-            }
+            std::copy_n(minkRes, dm, sIndex[i][j]);
         }
     }
 
-   
     // iteration
     for (int L = 0; L < iter; L++)
     {
@@ -212,9 +200,7 @@ void ExBsPCD::execute()
                 {
                     std::complex<double> HS = H[j][i] * ConsComplex[k];
                     // beta[j][i][k] =  -std::norm(RxSymbols[j] - sMean_in - HS) / sVar_in + std::norm(RxSymbols[j] - sMean_in - HS_0) / sVar_in;
-                    beta[j][i][k] =  (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) / (2*Nv);
-
-         
+                    beta[j][i][k] = (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) / (2 * Nv);
                 }
             }
         }
@@ -231,7 +217,6 @@ void ExBsPCD::execute()
             }
         }
 
-
         for (int j = 0; j < RxAntNum; j++)
         {
             for (int i = 0; i < TxAntNum; i++)
@@ -243,25 +228,41 @@ void ExBsPCD::execute()
                     alpha_ems[k] = alpha[i][j][k];
                 }
 
-                maxk(alpha_ems, ConSize, idx_ems, dm);
+                // turn off reordering according to zwy
+                //     maxk(alpha_ems, ConSize, idx_ems, dm);
+
+                //     double expAlphaSum = 0;
+                //     for (int k = 0; k < dm; k++)
+                //     {
+                //         expAlpha[k] = exp(alpha_ems[idx_ems[k]] - alpha_ems[idx_ems[0]]);
+                //         expAlphaSum += expAlpha[k];
+                //     }
+
+                //     memset(Px[i][j], 0, ConSize * sizeof(double));
+                //     for (int k = 0; k < dm; k++)
+                //     {
+                //         sIndex[i][j][k] = idx_ems[k];
+                //         Px[i][j][idx_ems[k]] = expAlpha[k] / expAlphaSum;
+                //     }
+                // }
 
                 double expAlphaSum = 0;
                 for (int k = 0; k < dm; k++)
                 {
-                    expAlpha[k] = exp(alpha_ems[idx_ems[k]] - alpha_ems[idx_ems[0]]);
+                    expAlpha[k] = exp(alpha_ems[sIndex[i][j][k]] - alpha_ems[sIndex[i][j][0]]);
                     expAlphaSum += expAlpha[k];
                 }
 
                 memset(Px[i][j], 0, ConSize * sizeof(double));
                 for (int k = 0; k < dm; k++)
                 {
-                    sIndex[i][j][k] = idx_ems[k];
-                    Px[i][j][idx_ems[k]] = expAlpha[k] / expAlphaSum;
+                    sIndex[i][j][k] = sIndex[i][j][k];
+                    Px[i][j][sIndex[i][j][k]] = expAlpha[k] / expAlphaSum;
                 }
             }
         }
     }
-    
+
     // symbolsToBits
     for (int i = 0; i < TxAntNum; i++)
     {
@@ -282,5 +283,4 @@ void ExBsPCD::execute()
             TxBitsEst[i * bitLength + j] = bitConsComplex[maxIndex * bitLength + j];
         }
     }
-
 }
