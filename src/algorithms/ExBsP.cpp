@@ -20,15 +20,17 @@ ExBsPCD::ExBsPCD(int iter, int dm) : DetectionAlgorithmCD()
     Px = nullptr;
     sIndex = nullptr;
     sMean = nullptr;
-    sVar = nullptr;
+    // sVar = nullptr;
 
     distList = nullptr;
     minkRes = nullptr;
 
-    alpha_ems = nullptr;
-    idx_ems = nullptr;
+    // alpha_ems = nullptr;
+    // idx_ems = nullptr;
 
     expAlpha = nullptr;
+
+    precomputedHCons = nullptr;
 }
 
 void ExBsPCD::bind(Detection *detection)
@@ -98,15 +100,17 @@ void ExBsPCD::bind(Detection *detection)
     }
 
     sMean = new std::complex<double>[TxAntNum];
-    sVar = new double[TxAntNum];
+    // sVar = new double[TxAntNum];
 
     distList = new double[ConSize];
     minkRes = new int[dm];
 
-    alpha_ems = new double[ConSize];
-    idx_ems = new int[dm];
+    // alpha_ems = new double[ConSize];
+    // idx_ems = new int[dm];
 
     expAlpha = new double[dm];
+
+    precomputedHCons = new std::complex<double>[RxAntNum * TxAntNum * ConSize];
 }
 void ExBsPCD::execute()
 {
@@ -164,6 +168,18 @@ void ExBsPCD::execute()
         }
     }
 
+    // precompute H * ConsComplex
+    for (int j = 0; j < RxAntNum; j++)
+    {
+        for (int i = 0; i < TxAntNum; i++)
+        {
+            for (int k = 0; k < ConSize; k++)
+            {
+                precomputedHCons[j * TxAntNum * ConSize + i * ConSize + k] = H[j][i] * ConsComplex[k];
+            }
+        }
+    }
+
     // iteration
     for (int L = 0; L < iter; L++)
     {
@@ -198,9 +214,9 @@ void ExBsPCD::execute()
 
                 for (int k = 0; k < ConSize; k++)
                 {
-                    std::complex<double> HS = H[j][i] * ConsComplex[k];
+                    std::complex<double> HS = precomputedHCons[j * TxAntNum * ConSize + i * ConSize + k];
                     // beta[j][i][k] =  -std::norm(RxSymbols[j] - sMean_in - HS) / sVar_in + std::norm(RxSymbols[j] - sMean_in - HS_0) / sVar_in;
-                    beta[j][i][k] = (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) / (2 * Nv);
+                    beta[j][i][k] = (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) * NvInv * 0.5;
                 }
             }
         }
@@ -224,8 +240,6 @@ void ExBsPCD::execute()
                 for (int k = 0; k < ConSize; k++)
                 {
                     alpha[i][j][k] = gamma[i][k] - beta[j][i][k];
-
-                    alpha_ems[k] = alpha[i][j][k];
                 }
 
                 // turn off reordering according to zwy
@@ -246,18 +260,20 @@ void ExBsPCD::execute()
                 //     }
                 // }
 
-                double expAlphaSum = 0;
+                double expAlphaSum = 0.0;
                 for (int k = 0; k < dm; k++)
                 {
-                    expAlpha[k] = exp(alpha_ems[sIndex[i][j][k]] - alpha_ems[sIndex[i][j][0]]);
+                    int idx = sIndex[i][j][k];
+                    expAlpha[k] = exp(alpha[i][j][idx] - alpha[i][j][sIndex[i][j][0]]);
                     expAlphaSum += expAlpha[k];
                 }
 
+                // Update Px[i][j]
                 memset(Px[i][j], 0, ConSize * sizeof(double));
                 for (int k = 0; k < dm; k++)
                 {
-                    sIndex[i][j][k] = sIndex[i][j][k];
-                    Px[i][j][sIndex[i][j][k]] = expAlpha[k] / expAlphaSum;
+                    int idx = sIndex[i][j][k];
+                    Px[i][j][idx] = expAlpha[k] / expAlphaSum;
                 }
             }
         }

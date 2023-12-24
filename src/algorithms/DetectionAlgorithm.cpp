@@ -24,6 +24,8 @@ void DetectionAlgorithmRD::bind(Detection *detection)
 
 
     Nv = rd->Nv;
+    NvInv = rd->NvInv;
+    sqrtNvDiv2 = rd->sqrtNvDiv2;
     TxAntNum = rd->TxAntNum;
     RxAntNum = rd->RxAntNum;
     TxAntNum2 = rd->TxAntNum2;
@@ -113,6 +115,8 @@ void DetectionAlgorithmCD::bind(Detection *detection)
     this->detectionCD = cd;
 
     Nv = cd->Nv;
+    NvInv = cd->NvInv;
+    sqrtNvDiv2 = cd->sqrtNvDiv2;
     TxAntNum = cd->TxAntNum;
     RxAntNum = cd->RxAntNum;
     ConSize = cd->ConSize;

@@ -32,7 +32,7 @@ class ExBsPCD: public DetectionAlgorithmCD {
         int *** sIndex;
 
         std::complex<double> * sMean;
-        double * sVar;
+        // double * sVar;
 
 
 
@@ -40,10 +40,12 @@ class ExBsPCD: public DetectionAlgorithmCD {
         double * distList; // shape [ConSize], temp array used to store the distance between MMSEEst and constellation for each Tx antenna
         int * minkRes; // shape [dm], temp array used to store the index of the dm smallest elements in distList
 
-        double * alpha_ems; 
-        int * idx_ems;
+        // double * alpha_ems; 
+        // int * idx_ems;
 
         double * expAlpha;
+
+        std::complex<double> * precomputedHCons;
 
     public:
         ExBsPCD(int iter, int dm);  

@@ -13,6 +13,8 @@ class DetectionAlgorithm {
         int errorFrames;
 
         double  Nv;
+        double  NvInv;
+        double  sqrtNvDiv2;
         int TxAntNum, RxAntNum, ConSize, bitLength;
 
         int * TxBitsEst;
