@@ -2,15 +2,24 @@ import mimo as m
 
 
 
-TxAntNum = 4
+TxAntNum = 8
 RxAntNum = 8
 ModType = 4
-SNR=15
+SNR=10
 samples=10000
 
 
-errorBits,errorFrames = m.det(TxAntNum,RxAntNum,ModType,SNR,samples)
+m.detectionInit(TxAntNum,RxAntNum,ModType,SNR,True)
 
-print("误码率=",errorBits)
-print("误帧率=",errorFrames)
+m.ExBsPInit(3,4)
+
+for i in range(samples):
+    m.execute()
+    newErrorBits,newErrorFrames = m.report()
+
+    print(newErrorBits,newErrorFrames)
+
+
+
+
 

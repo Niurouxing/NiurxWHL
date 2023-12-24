@@ -9,8 +9,11 @@ class Detection;
 class DetectionAlgorithm {
     protected:
         Detection * detection;
-        int errorBits;
-        int errorFrames;
+        int errorBitsAll;
+        int errorFramesAll;
+
+        int newErrorBits;
+        int newErrorFrames;
 
         double  Nv;
         double  NvInv;
@@ -27,8 +30,11 @@ class DetectionAlgorithm {
         virtual void check()=0;
 
         int * getTxBitsEst() const { return TxBitsEst; }
-        int getErrorBits() const { return errorBits; }
-        int getErrorFrames() const { return errorFrames; }
+        int getErrorBits() const { return errorBitsAll; }
+        int getErrorFrames() const { return errorFramesAll; }
+
+        int getNewErrorBits() const { return newErrorBits; }
+        int getNewErrorFrames() const { return newErrorFrames; }
 };
 
 class DetectionAlgorithmRD : public DetectionAlgorithm {

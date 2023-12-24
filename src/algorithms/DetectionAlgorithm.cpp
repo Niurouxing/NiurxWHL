@@ -6,8 +6,8 @@
 DetectionAlgorithm::DetectionAlgorithm()
 {
     detection = nullptr;
-    errorBits = 0;
-    errorFrames = 0;
+    errorBitsAll = 0;
+    errorFramesAll = 0;
 }
 
 void DetectionAlgorithmRD::bind(Detection *detection)
@@ -59,10 +59,14 @@ void DetectionAlgorithmRD::check()
             currentErrorBits++;
         }
     }
+
+    newErrorBits = currentErrorBits;
+    newErrorFrames = currentErrorBits > 0 ? 1 : 0;
+
     if (currentErrorBits > 0)
     {
-        errorFrames++;
-        errorBits += currentErrorBits;
+        errorFramesAll++;
+        errorBitsAll += currentErrorBits;
     }
 }
 
@@ -147,10 +151,14 @@ void DetectionAlgorithmCD::check()
             currentErrorBits++;
         }
     }
+
+    newErrorBits = currentErrorBits;
+    newErrorFrames = currentErrorBits > 0 ? 1 : 0;
+    
     if (currentErrorBits > 0)
     {
-        errorFrames++;
-        errorBits += currentErrorBits;
+        errorFramesAll++;
+        errorBitsAll += currentErrorBits;
     }
 }
 

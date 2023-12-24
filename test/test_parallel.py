@@ -20,12 +20,15 @@ stepSNR=3
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 200000
-samplesPreIter=50
 
 
-def worker(queue,samples,snr):
+
+def worker(queue,snr):
+    m.detectionInit(TxAntNum,RxAntNum,ModType,snr,True)
+    m.ExBsPInit(3,8)
     while True:
-        errorBits,errorFrames = m.det(TxAntNum,RxAntNum,ModType,snr,samples)
+        m.execute()
+        errorBits,errorFrames =  m.report()
         queue.put((errorBits,errorFrames))
  
 if __name__ == '__main__':
@@ -36,7 +39,7 @@ if __name__ == '__main__':
     for snr in SNR:
         num_processes = os.cpu_count() 
         queue = multiprocessing.Queue()
-        processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
+        processes = [multiprocessing.Process(target=worker, args=(queue,snr)) for i in range(num_processes)]
         for process in processes:
             process.start()
 
@@ -50,7 +53,7 @@ if __name__ == '__main__':
         
                 errorBits += newErrorBits
                 errorFrames += newErrorFrames
-                samples += samplesPreIter
+                samples += 1
 
                 pbar.set_postfix(snr=snr,误码率=errorBits/samples/TxAntNum/ModType,误帧率=errorFrames/samples,总错比特=str(errorBits) ,总错帧=str(errorFrames),总样本=str(samples))
                 

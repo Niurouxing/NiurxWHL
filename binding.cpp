@@ -7,10 +7,31 @@ namespace py = pybind11;
 
 #include "det.h"
 
+
 void bind_det(py::module &m) {
     m.def(
-        "det",
-        &det
+        "detectionInit",
+        &detectionInit
+    );
+    m.def(
+        "MMSEInit",
+        &MMSEInit
+    );
+    m.def(
+        "EPInit",
+        &EPInit
+    );
+    m.def(
+        "ExBsPInit",
+        &ExBsPInit
+    );
+    m.def(
+        "execute",
+        &execute
+    );
+    m.def(
+        "report",
+        &report
     );
 }
 
