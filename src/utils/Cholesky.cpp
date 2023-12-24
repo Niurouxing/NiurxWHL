@@ -8,6 +8,7 @@
 
 CholeskyInv::CholeskyInv(int size, bool isComplex) {
     this->size = size;
+    this->isComplex = isComplex;
 
     if (isComplex) {
         lComplex = new std::complex<double>[size * size];
@@ -135,5 +136,15 @@ void CholeskyInv::execute(std::complex<double> ** a, std::complex<double> ** aIn
             }
             aInv[j][i] /= std::conj(lComplex[j * size + j]);
         }
+    }
+}
+
+CholeskyInv::~CholeskyInv() {
+    if (isComplex) {
+        delete[] lComplex;
+        delete[] yComplex;
+    } else {
+        delete[] lReal;
+        delete[] yReal;
     }
 }

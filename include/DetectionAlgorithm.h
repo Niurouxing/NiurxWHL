@@ -45,7 +45,7 @@ class DetectionAlgorithmRD : public DetectionAlgorithm {
         void bind(Detection* detection) override;
         void check() override;
         void symbolsToBits(double * TxSymbolsEst);
-        ~DetectionAlgorithmRD() override = default;
+        ~DetectionAlgorithmRD() override;
 };
 
 class DetectionAlgorithmCD : public DetectionAlgorithm {
@@ -65,7 +65,7 @@ class DetectionAlgorithmCD : public DetectionAlgorithm {
         void bind(Detection* detection) override;
         void check() override;
         void symbolsToBits(std::complex<double> * TxSymbolsEst);
-        ~DetectionAlgorithmCD() override = default;
+        ~DetectionAlgorithmCD() override;
 };
 
 

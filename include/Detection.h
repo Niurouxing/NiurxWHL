@@ -17,12 +17,13 @@ class Detection{
         double Nv;
         double sqrtNvDiv2;
         double NvInv;
+        std::uniform_int_distribution<int> randomInt;
 
         virtual void generateChannel()=0;
         virtual void generateTxSignals()=0;
         virtual void generateRxSignalsWithNoise()=0;
         virtual void generate();
-        virtual ~Detection()=default;
+        virtual ~Detection();
 };
 
 
@@ -42,7 +43,7 @@ class DetectionRD : public Detection{
         void generateTxSignals() override;
         void generateRxSignalsWithNoise() override;
 
-        ~DetectionRD() override = default;
+        ~DetectionRD() override;
 };
 
 class DetectionCD : public Detection{
@@ -65,5 +66,5 @@ class DetectionCD : public Detection{
         void generateTxSignals() override;
         void generateRxSignalsWithNoise() override;
 
-        ~DetectionCD() override = default;
+        ~DetectionCD() override;
 };

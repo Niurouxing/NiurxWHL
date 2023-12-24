@@ -88,6 +88,39 @@ void EP::bind(Detection* detection) {
     HtRAddGamma = new double[TxAntNum2];
 }
 
+EP::~EP() {
+    delete[] Alpha;
+    delete[] Gamma;
+    delete[] AlphaInit;
+    delete[] Alpha_new;
+    delete[] Gamma_new;
+    delete[] sig;
+    delete[] h2;
+    delete[] t;
+    for (int i = 0; i < TxAntNum2; i++) {
+        delete[] prob[i];
+    }
+    delete[] prob;
+    delete[] sigma2_p;
+    delete[] mu_p;
+    for (int i = 0; i < TxAntNum2; i++) {
+        delete[] HtH[i];
+    }
+    delete[] HtH;
+    for (int i = 0; i < TxAntNum2; i++) {
+        delete[] HtHMod[i];
+    }
+    delete[] HtHMod;
+    delete[] HtR;
+    for (int i = 0; i < TxAntNum2; i++) {
+        delete[] Sigma_q[i];
+    }
+    delete[] Sigma_q;
+    delete[] Mu_q;
+    delete choleskyInv;
+    delete[] invOneMinusSigAlpha;
+    delete[] HtRAddGamma;
+}
 
 void EP::execute(){
     std::memcpy(Alpha, AlphaInit, TxAntNum2 * sizeof(double));
@@ -196,3 +229,4 @@ void EP::execute(){
     symbolsToBits(Mu_q);
 
 }
+

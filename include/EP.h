@@ -55,6 +55,5 @@ class EP: public DetectionAlgorithmRD {
         void bind(Detection* detection) override;
         void execute() override;
 
-        ~EP()=default;
-
+        ~EP() override;
 };

@@ -40,6 +40,14 @@ void MMSE::execute() {
     symbolsToBits(TxSymbolsEst);
 }
 
+MMSE::~MMSE() {
+    delete[] HtH;
+    delete[] HtHInv;
+    delete[] HtR;
+    delete[] TxSymbolsEst;
+    delete choleskyInv;
+}
+
 MMSECD::MMSECD(): DetectionAlgorithmCD() {
     HtH = nullptr;
     HtHInv = nullptr;
@@ -81,5 +89,17 @@ void MMSECD::execute() {
     MatrixMultiplyVector(HtHInv, HtR, TxAntNum, TxAntNum, TxSymbolsEst);
 
     symbolsToBits(TxSymbolsEst);
+}
+
+MMSECD::~MMSECD() {
+    for (int i = 0; i < TxAntNum; i++) {
+        delete[] HtH[i];
+        delete[] HtHInv[i];
+    }
+    delete[] HtH;
+    delete[] HtHInv;
+    delete[] HtR;
+    delete[] TxSymbolsEst;
+    delete choleskyInv;
 }
 

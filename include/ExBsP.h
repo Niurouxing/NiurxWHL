@@ -52,6 +52,6 @@ class ExBsPCD: public DetectionAlgorithmCD {
         void bind(Detection* detection) override;
         void execute() override;
 
-        ~ExBsPCD()=default;
+        ~ExBsPCD() override;
 
 };

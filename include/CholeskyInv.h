@@ -5,6 +5,7 @@
 class CholeskyInv
 {
     private:
+        bool isComplex;
         double * lReal;
         double * yReal;
         std::complex<double> * lComplex;
@@ -16,5 +17,5 @@ class CholeskyInv
         void execute(double * A, double * AInv);
         void execute(double ** A, double ** AInv);
         void execute(std::complex<double> ** A, std::complex<double> ** AInv);
-        ~CholeskyInv()=default;
+        ~CholeskyInv();
 };

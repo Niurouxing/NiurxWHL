@@ -112,6 +112,80 @@ void ExBsPCD::bind(Detection *detection)
 
     precomputedHCons = new std::complex<double>[RxAntNum * TxAntNum * ConSize];
 }
+
+ExBsPCD::~ExBsPCD()
+{
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        delete[] HtH[i];
+        delete[] HtHInv[i];
+    }
+    delete[] HtH;
+    delete[] HtHInv;
+    delete[] HtR;
+    delete choleskyInv;
+
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        delete[] gamma[i];
+    }
+    delete[] gamma;
+
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        for (int j = 0; j < RxAntNum; j++)
+        {
+            delete[] alpha[i][j];
+        }
+        delete[] alpha[i];
+    }
+    delete[] alpha;
+
+    for (int i = 0; i < RxAntNum; i++)
+    {
+        for (int j = 0; j < TxAntNum; j++)
+        {
+            delete[] beta[i][j];
+        }
+        delete[] beta[i];
+    }
+    delete[] beta;
+
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        for (int j = 0; j < RxAntNum; j++)
+        {
+            delete[] Px[i][j];
+        }
+        delete[] Px[i];
+    }
+    delete[] Px;
+
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        for (int j = 0; j < RxAntNum; j++)
+        {
+            delete[] sIndex[i][j];
+        }
+        delete[] sIndex[i];
+    }
+    delete[] sIndex;
+
+    delete[] sMean;
+    // delete[] sVar;
+
+    delete[] distList;
+    delete[] minkRes;
+
+    // delete[] alpha_ems;
+    // delete[] idx_ems;
+
+    delete[] expAlpha;
+
+    delete[] precomputedHCons;
+}
+
+
 void ExBsPCD::execute()
 {
 

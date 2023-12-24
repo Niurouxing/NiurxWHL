@@ -20,7 +20,7 @@ class MMSE: public DetectionAlgorithmRD {
         void bind(Detection* detection) override;
         void execute() override;
 
-        ~MMSE()=default;
+        ~MMSE() override;
 
 };
 
@@ -39,6 +39,6 @@ class MMSECD: public DetectionAlgorithmCD {
         void bind(Detection* detection) override;
         void execute() override;
 
-        ~MMSECD()=default;
+        ~MMSECD() override;
 
 };

@@ -23,7 +23,13 @@ std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, i
         alg->execute();
         alg->check();
     }
+
+    int errorBits = alg->getErrorBits();
+    int errorFrames = alg->getErrorFrames();
+
+    delete det;
+    delete alg;
     
-    return std::make_tuple(alg->getErrorBits(), alg->getErrorFrames());
+    return  std::make_tuple(errorBits,errorFrames);
 }
 

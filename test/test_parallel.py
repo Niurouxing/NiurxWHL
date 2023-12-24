@@ -20,7 +20,7 @@ stepSNR=3
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 200000
-samplesPreIter=1000
+samplesPreIter=50
 
 
 def worker(queue,samples,snr):

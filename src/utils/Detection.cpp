@@ -30,14 +30,6 @@ inline double randomGaussian_divSqrt2()
     return distribution_divSqrt2(rng2);
 }
 
-inline int randomInt(int max)
-{
-    return rand() % max;
-}
-
-
-    
-
 
 Detection::Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB)
 {
@@ -60,6 +52,11 @@ void Detection::generate()
     generateChannel();
     generateTxSignals();
     generateRxSignalsWithNoise();
+}
+
+Detection::~Detection()
+{
+    delete[] TxBits;
 }
 
 DetectionRD::DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) : Detection(TxAntNum, RxAntNum, ModType, SNRdB)
@@ -108,6 +105,8 @@ DetectionRD::DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) 
     {
         this->H[i] = new double[TxAntNum2];
     }
+
+    this->randomInt = std::uniform_int_distribution<int>(0, ConSize - 1);
 }
 
 void DetectionRD::generateChannel()
@@ -137,7 +136,7 @@ void DetectionRD::generateTxSignals()
 
     for (int i = 0; i < TxAntNum2; i++)
     {
-        index = randomInt(ConSize);
+        index = randomInt(rng1);
         TxSymbols[i] = Cons[index];
         for (int b = 0; b < bitLength; b++)
         {
@@ -159,6 +158,19 @@ void DetectionRD::generateRxSignalsWithNoise()
         RxSymbols[r] += randomGaussian() * sqrtNvDiv2;
     }
 }
+
+DetectionRD::~DetectionRD()
+{
+    for (int i = 0; i < RxAntNum2; i++)
+    {
+        delete[] H[i];
+    }
+    delete[] H;
+
+    delete[] TxSymbols;
+    delete[] RxSymbols;
+}
+
 
 DetectionCD::DetectionCD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) : Detection(TxAntNum, RxAntNum, ModType, SNRdB)
 {
@@ -211,6 +223,8 @@ DetectionCD::DetectionCD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) 
     {
         this->H[i] = new std::complex<double>[TxAntNum];
     }
+
+    this->randomInt = std::uniform_int_distribution<int>(0, ConSize - 1);
 }
 
 void DetectionCD::generateChannel()
@@ -236,7 +250,7 @@ void DetectionCD::generateTxSignals()
 
     for (int i = 0; i < TxAntNum; i++)
     {
-        index = randomInt(ConSize);
+        index = randomInt(rng1);
         TxSymbols[i] = ConsComplex[index];
         TxIndiceCD[i] = index;
         for (int b = 0; b < bitLength; b++)
@@ -259,4 +273,17 @@ void DetectionCD::generateRxSignalsWithNoise()
         RxSymbols[r] += std::complex<double>(randomGaussian(), randomGaussian()) * sqrtNvDiv2;
     }
 
+}
+
+DetectionCD::~DetectionCD()
+{
+    for (int i = 0; i < RxAntNum; i++)
+    {
+        delete[] H[i];
+    }
+    delete[] H;
+
+    delete[] TxIndiceCD;
+    delete[] TxSymbols;
+    delete[] RxSymbols;
 }

@@ -92,6 +92,11 @@ void DetectionAlgorithmRD::symbolsToBits(double *TxSymbolsEst)
     }
 }
 
+DetectionAlgorithmRD::~DetectionAlgorithmRD()
+{
+    delete[] TxBitsEst;
+}
+
 DetectionAlgorithmCD::DetectionAlgorithmCD() : DetectionAlgorithm()
 {
     H = nullptr;
@@ -173,4 +178,9 @@ void DetectionAlgorithmCD::symbolsToBits(std::complex<double> *TxSymbolsEst)
             TxBitsEst[i * bitLength + j] = bitConsComplex[minIndex * bitLength + j];
         }
     }
+}
+
+DetectionAlgorithmCD::~DetectionAlgorithmCD()
+{
+    delete[] TxBitsEst;
 }
