@@ -216,6 +216,56 @@ inline void MatrixTransposeMultiplyMatrix(std::complex<double>** Mat1, std::comp
         }
     }
 }
+
+
+inline void MatrixTransposeMultiplySelf(double** Mat, int row, int col, double** result) {
+    for (int i = 0; i < col; i++) {
+        for (int j = i; j < col; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < row; k++) {
+                result[i][j] += Mat[k][i] * Mat[k][j];
+            }
+            result[j][i] = result[i][j];
+        }
+    }
+}
+
+
+inline void MatrixTransposeMultiplySelf(double** Mat, int row, int col, double* result) {
+    for (int i = 0; i < col; i++) {
+        for (int j = i; j < col; j++) {
+            result[i * col + j] = 0;
+            for (int k = 0; k < row; k++) {
+                result[i * col + j] += Mat[k][i] * Mat[k][j];
+            }
+            result[j * col + i] = result[i * col + j];
+        }
+    }
+}
+
+inline void MatrixTransposeMultiplySelf(double* Mat, int row, int col, double* result) {
+    for (int i = 0; i < col; i++) {
+        for (int j = i; j < col; j++) {
+            result[i * col + j] = 0;
+            for (int k = 0; k < row; k++) {
+                result[i * col + j] += Mat[k * col + i] * Mat[k * col + j];
+            }
+            result[j * col + i] = result[i * col + j];
+        }
+    }
+}
+
+inline void MatrixTransposeMultiplySelf(std::complex<double>** Mat, int row, int col, std::complex<double>** result) {
+    for (int i = 0; i < col; i++) {
+        for (int j = i; j < col; j++) {
+            result[i][j] = std::complex<double>(0, 0);
+            for (int k = 0; k < row; k++) {
+                result[i][j] += std::conj(Mat[k][i]) * Mat[k][j];
+            }
+            result[j][i] = result[i][j];
+        }
+    }
+}
     
 // only for test, never use it in real project
 template <typename T>

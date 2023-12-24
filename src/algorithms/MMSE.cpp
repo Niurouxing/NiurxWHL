@@ -27,7 +27,7 @@ void MMSE::execute() {
 
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, HtR);
 
-    MatrixTransposeMultiplyMatrix(H, H, RxAntNum2, TxAntNum2, TxAntNum2, HtH);
+    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, HtH);
  
     for (int i = 0; i < TxAntNum2; i++) {
         HtH[i * TxAntNum2 + i] += Nv;
@@ -78,7 +78,7 @@ void MMSECD::execute() {
 
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum, TxAntNum, HtR);
 
-    MatrixTransposeMultiplyMatrix(H, H, RxAntNum, TxAntNum, TxAntNum, HtH);
+    MatrixTransposeMultiplySelf(H, RxAntNum, TxAntNum, HtH);
  
     for (int i = 0; i < TxAntNum; i++) {
         HtH[i][i] += Nv;

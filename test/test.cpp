@@ -18,7 +18,7 @@ int main(){
     int sample = 1000;
 
     Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new ExBsPCD(3, 4);
+    DetectionAlgorithm * alg = new MMSECD();
 
     alg->bind(det);
 
