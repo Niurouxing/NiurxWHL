@@ -3,11 +3,67 @@
 
 #include <vector>
 #include <iostream>
+#include <complex>
+#include <algorithm>
 
 #define sqrt2 1.4142135623730951
 #define sqrt2_div 0.7071067811865475
 
 
+inline void sortIndice(double* arr, int* result, int n) {
+    // Initialize the indices
+    for(int i = 0; i < n; i++) {
+        result[i] = i;
+    }
+
+    // Use std::sort with a lambda function as the comparator
+    std::sort(result, result + n, [&arr](const int& a, const int& b) {
+        return arr[a] > arr[b];
+    });
+}
+
+// 堆基于排序，O(nlogk)，有个快排的O(n)算法，但是太难写
+inline void mink(double* arr, int n, int* result, int k) {
+    // 初始化result数组
+    std::fill_n(result, k, -1);
+
+    for (int i = 0; i < n; ++i) {
+        // 查找应插入的位置
+        int j = 0;
+        while (j < k && result[j] != -1 && arr[i] >= arr[result[j]]) {
+            ++j;
+        }
+
+        if (j < k) {
+            // 向后移动元素以为新元素腾出空间
+            for (int m = k - 1; m > j; --m) {
+                result[m] = result[m - 1];
+            }
+            result[j] = i; // 插入新索引
+        }
+    }
+}
+
+inline void maxk(double* arr, int n, int* result, int k) {
+    // 初始化result数组
+    std::fill_n(result, k, -1);
+
+    for (int i = 0; i < n; ++i) {
+        // 查找应插入的位置
+        int j = 0;
+        while (j < k && result[j] != -1 && arr[i] <= arr[result[j]]) {
+            ++j;
+        }
+
+        if (j < k) {
+            // 向后移动元素以为新元素腾出空间
+            for (int m = k - 1; m > j; --m) {
+                result[m] = result[m - 1];
+            }
+            result[j] = i; // 插入新索引
+        }
+    }
+}
 
 inline void initializeMatrix(double** Mat, int row, int col) {
     
@@ -35,6 +91,17 @@ inline void MatrixMultiplyVector(double* Mat, double* Vec, int row, int col, dou
     }
 }
 
+inline void MatrixMultiplyVector(std::complex<double>** Mat, std::complex<double>* Vec, int row, int col, std::complex<double>* result) {
+    for (int i = 0; i < row; i++) {
+        result[i] = 0;
+        for (int j = 0; j < col; j++) {
+            result[i] += Mat[i][j] * Vec[j];
+        }
+    }
+}
+
+
+
 inline void MatrixTransposeMultiplyVector(double** Mat, double* Vec, int row, int col, double* result) {
     for (int i = 0; i < col; i++) {
         result[i] = 0;
@@ -49,6 +116,15 @@ inline void MatrixTransposeMultiplyVector(double* Mat, double* Vec, int row, int
         result[i] = 0;
         for (int j = 0; j < row; j++) {
             result[i] += Mat[j * col + i] * Vec[j];
+        }
+    }
+}
+
+inline void MatrixTransposeMultiplyVector(std::complex<double>** Mat, std::complex<double>* Vec, int row, int col, std::complex<double>* result) {
+    for (int i = 0; i < col; i++) {
+        result[i] = 0;
+        for (int j = 0; j < row; j++) {
+            result[i] += std::conj(Mat[j][i]) * Vec[j];
         }
     }
 }
@@ -86,6 +162,17 @@ inline void MatrixMultiplyMatrix(double** Mat1, double** Mat2, int row1, int col
     }
 }
 
+inline void MatrixMultiplyMatrix(std::complex<double>** Mat1, std::complex<double>** Mat2, int row1, int col1, int col2, std::complex<double>** result) {
+    for (int i = 0; i < row1; i++) {
+        for (int j = 0; j < col2; j++) {
+            result[i][j] = std::complex<double>(0, 0);
+            for (int k = 0; k < col1; k++) {
+                result[i][j] += Mat1[i][k] * Mat2[k][j];
+            }
+        }
+    }
+}
+
 inline void MatrixTransposeMultiplyMatrix(double** Mat1, double** Mat2, int row1, int col1, int col2, double** result) {
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < col2; j++) {
@@ -118,10 +205,24 @@ inline void MatrixTransposeMultiplyMatrix(double** Mat1, double** Mat2, int row1
         }
     }
 }
+
+inline void MatrixTransposeMultiplyMatrix(std::complex<double>** Mat1, std::complex<double>** Mat2, int row1, int col1, int col2, std::complex<double>** result) {
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < col2; j++) {
+            result[i][j] = std::complex<double>(0, 0);
+            for (int k = 0; k < row1; k++) {
+                result[i][j] += std::conj(Mat1[k][i]) * Mat2[k][j];
+            }
+        }
+    }
+}
     
 // only for test, never use it in real project
 template <typename T>
-void printVector(T* Vec, int length) {
+void printVector(T* Vec, int length, std::string name = "") {
+    if (name != "") {
+        std::cout << name << ": " << std::endl;
+    }
     for (int i = 0; i < length; i++) {
         std::cout << Vec[i] << " ";
     }
@@ -129,7 +230,10 @@ void printVector(T* Vec, int length) {
 }
 
 template <typename T>
-void printMatrix(T** Mat, int row, int col) {
+void printMatrix(T** Mat, int row, int col, std::string name = "") {
+    if (name != "") {
+        std::cout << name << ": " << std::endl;
+    }
     for (int i = 0; i < row; i++) {
         printVector(Mat[i], col);
     }
@@ -137,9 +241,24 @@ void printMatrix(T** Mat, int row, int col) {
 }
 
 template <typename T>
-void printMatrix(T* Mat, int row, int col) {
+void printMatrix(T* Mat, int row, int col, std::string name = "") {
+    if (name != "") {
+        std::cout << name << ": " << std::endl;
+    }
     for (int i = 0; i < row; i++) {
         printVector(Mat + i * col, col);
+    }
+    std::cout << std::endl;
+}
+
+template <typename T>
+void printCube(T*** Mat, int row, int col, int height, std::string name = "") {
+    if (name != "") {
+        std::cout << name << ": " << std::endl;
+    }
+    for (int i = 0; i < row; i++) {
+        printMatrix(Mat[i], col, height, name + "[" + std::to_string(i) + "]");
+        std::cout << std::endl;
     }
     std::cout << std::endl;
 }

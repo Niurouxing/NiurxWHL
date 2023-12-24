@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Algorithm.h"
-#include "CholeskyInv.h"
+#include "DetectionAlgorithm.h"
+#include <complex>
 
-class MMSE: public Algorithm {
+class CholeskyInv;
+
+class MMSE: public DetectionAlgorithmRD {
     private:
         double * HtH;
         double * HtHInv;
@@ -15,8 +17,28 @@ class MMSE: public Algorithm {
  
     public:
         MMSE();
+        void bind(Detection* detection) override;
         void execute() override;
 
-        ~MMSE()=default;
+        ~MMSE() override;
+
+};
+
+class MMSECD: public DetectionAlgorithmCD {
+    private:
+        std::complex<double> ** HtH;
+        std::complex<double> ** HtHInv;
+        std::complex<double> * HtR;
+
+        std::complex<double> * TxSymbolsEst;
+
+        CholeskyInv * choleskyInv;
+ 
+    public:
+        MMSECD();
+        void bind(Detection* detection) override;
+        void execute() override;
+
+        ~MMSECD() override;
 
 };

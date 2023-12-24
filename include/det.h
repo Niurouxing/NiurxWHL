@@ -4,15 +4,51 @@
 #include "EP.h"
 #include "utils.h"
 #include "Detection.h"
+#include "ExBsP.h"
 
 
-std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
-    Detection::createDetection(TxAntNum, RxAntNum, ModType, SNRdB);
-    Algorithm * alg = new EP(5,0.9);
-    for (int i = 0; i < sample; i++) {
-        Detection::getDetection()->generate();
-        alg->execute();
-        alg->check();
+Detection* detection;
+DetectionAlgorithm* algorithm;
+
+
+void detectionInit(int TxAntNum, int RxAntNum, int ModType, double SNRdB, bool isComplex){
+    if(isComplex){
+        detection = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
+    }else{
+        detection = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
     }
-    return std::make_tuple(alg->getErrorBits(), alg->getErrorFrames());
 }
+
+void MMSEInit(bool isComplex){
+    if(isComplex){
+        algorithm = new MMSECD();
+    }else{
+        algorithm = new MMSE();
+    }
+    algorithm->bind(detection);
+}
+
+void EPInit(int iter, double delta){
+    algorithm = new EP(iter, delta);
+    algorithm->bind(detection);
+}
+
+void ExBsPInit(int iter, int dm){
+    algorithm = new ExBsPCD(iter, dm);
+    algorithm->bind(detection);
+}
+
+void execute(){
+    detection->generate();
+    algorithm->execute();
+    algorithm->check();
+}
+
+std::tuple<int,int> report(){
+    int newErrorBits = algorithm->getNewErrorBits();
+    int newErrorFrames = algorithm->getNewErrorFrames();
+
+    return std::make_tuple(newErrorBits, newErrorFrames);
+}
+
+ 

@@ -1,36 +1,70 @@
 #pragma once
 
+
+#include <complex>
+
 class Detection{
-    private:
-        static Detection * detection;
+    public:
+
         Detection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
-
-    public:
-        Detection(const Detection&) = delete;
-        Detection& operator=(const Detection&) = delete;
-
-        static void createDetection(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
-        static Detection * getDetection();
-
-
+        // used in both real and complex domain
         int TxAntNum, RxAntNum, ModType, ConSize, bitLength;
         int TxAntNum2, RxAntNum2;
+
+        int * TxBits;
+        double SNRdB;
+        double Nv;
+        double sqrtNvDiv2;
+        double NvInv;
+        std::uniform_int_distribution<int> randomInt;
+
+        virtual void generateChannel()=0;
+        virtual void generateTxSignals()=0;
+        virtual void generateRxSignalsWithNoise()=0;
+        virtual void generate();
+        virtual ~Detection();
+};
+
+
+class DetectionRD : public Detection{
+    public:
+        DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
+
+        // used in real domain
         double * TxSymbols;
+        double ** H;
         double * RxSymbols;
         const double * Cons;
         const double * Cons2;
         const int * bitCons;
 
-        int * TxBits;
-        double ** H;
-        double SNRdB;
-        double Nv;
-        double sqrtNvDiv2;
-        double NvInv;
-        void generateChannel();
-        void generateTxSignals();
-        void generateRxSignalsWithNoise();
-        void generate();
-        ~Detection()=default;
+        void generateChannel() override;
+        void generateTxSignals() override;
+        void generateRxSignalsWithNoise() override;
+
+        ~DetectionRD() override;
+};
+
+class DetectionCD : public Detection{
+    public:
+        DetectionCD(int TxAntNum, int RxAntNum, int ModType, double SNRdB);
+
+        // used in complex domain
+        std::complex<double> * TxSymbols;
+        std::complex<double> ** H;
+        std::complex<double> * RxSymbols;
+
+        int* TxIndiceCD;
+        const double * ConsReal;
+        const std::complex<double> * ConsComplex;
+
+        const int * bitConsReal;
+        const int * bitConsComplex;
+
+        void generateChannel() override;
+        void generateTxSignals() override;
+        void generateRxSignalsWithNoise() override;
+
+        ~DetectionCD() override;
 };
