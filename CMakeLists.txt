@@ -4,12 +4,21 @@ SET(MODNAME "mimo")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
- 
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -DACCELERATE_NEW_LAPACK -DACCELERATE_LAPACK_ILP64")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -DACCELERATE_NEW_LAPACK -DACCELERATE_LAPACK_ILP64")
+endif()
 
 PROJECT(${MODNAME})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# if on ubuntu
+if (UNIX AND NOT APPLE)
+    find_package(BLAS REQUIRED)
+endif()
+
 
 add_subdirectory(pybind11)
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -29,3 +38,13 @@ target_compile_definitions(${MODNAME} PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INF
 
 
 add_executable(MimoTest test/test.cpp ${CPP_FILES})
+
+if (UNIX AND NOT APPLE)
+    target_link_libraries(${MODNAME} PRIVATE ${BLAS_LIBRARIES})
+    target_link_libraries(MimoTest PRIVATE ${BLAS_LIBRARIES})
+endif()
+
+if (APPLE)
+    target_link_libraries(${MODNAME} PRIVATE "-framework Accelerate")
+    target_link_libraries(MimoTest PRIVATE "-framework Accelerate")
+endif()

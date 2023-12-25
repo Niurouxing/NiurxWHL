@@ -8,17 +8,25 @@
 
 
 std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
-    auto det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    auto alg = new EP(5, 0.9);
+    Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm * alg = new MMSE();
+
     alg->bind(det);
 
-    for (int i = 0; i < sample; ++i) {
+    for(int i=0;i<sample;i++){
         det->generate();
         alg->execute();
         alg->check();
     }
 
 
-    return std::make_tuple(alg->getErrorBits(), alg->getErrorFrames());
+    auto errorBits = alg->getErrorBits();
+    auto errorFrames = alg->getErrorFrames();
+
+    delete det;
+    delete alg;
+
+
+    return std::make_tuple(errorBits, errorFrames);
 }
  
