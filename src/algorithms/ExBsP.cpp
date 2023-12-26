@@ -37,67 +37,28 @@ void ExBsPCD::bind(Detection *detection)
 {
     DetectionAlgorithmCD::bind(detection);
 
-    HtH = new std::complex<double> *[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        HtH[i] = new std::complex<double>[TxAntNum];
-    }
+    HtH = new std::complex<double> [TxAntNum * TxAntNum];
 
-    HtHInv = new std::complex<double> *[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        HtHInv[i] = new std::complex<double>[TxAntNum];
-    }
+
+    HtHInv = new std::complex<double> [TxAntNum * TxAntNum];
 
     HtR = new std::complex<double>[TxAntNum];
 
     choleskyInv = new CholeskyInv(TxAntNum, true);
 
-    gamma = new double *[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        gamma[i] = new double[ConSize];
-    }
+    gamma = new double [TxAntNum * ConSize];
 
-    alpha = new double **[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        alpha[i] = new double *[RxAntNum];
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            alpha[i][j] = new double[ConSize];
-        }
-    }
 
-    beta = new double **[RxAntNum];
-    for (int i = 0; i < RxAntNum; i++)
-    {
-        beta[i] = new double *[TxAntNum];
-        for (int j = 0; j < TxAntNum; j++)
-        {
-            beta[i][j] = new double[ConSize];
-        }
-    }
+    alpha = new double [TxAntNum * RxAntNum * ConSize];
 
-    Px = new double **[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        Px[i] = new double *[RxAntNum];
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            Px[i][j] = new double[ConSize];
-        }
-    }
+    beta = new double [RxAntNum * TxAntNum * ConSize];
 
-    sIndex = new int **[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        sIndex[i] = new int *[RxAntNum];
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            sIndex[i][j] = new int[dm];
-        }
-    }
+
+    Px = new double [TxAntNum * RxAntNum * ConSize];
+
+
+    sIndex = new int [TxAntNum * RxAntNum * dm];
+
 
     sMean = new std::complex<double>[TxAntNum];
     // sVar = new double[TxAntNum];
@@ -115,60 +76,19 @@ void ExBsPCD::bind(Detection *detection)
 
 ExBsPCD::~ExBsPCD()
 {
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        delete[] HtH[i];
-        delete[] HtHInv[i];
-    }
+
     delete[] HtH;
     delete[] HtHInv;
     delete[] HtR;
     delete choleskyInv;
-
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        delete[] gamma[i];
-    }
     delete[] gamma;
 
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            delete[] alpha[i][j];
-        }
-        delete[] alpha[i];
-    }
     delete[] alpha;
 
-    for (int i = 0; i < RxAntNum; i++)
-    {
-        for (int j = 0; j < TxAntNum; j++)
-        {
-            delete[] beta[i][j];
-        }
-        delete[] beta[i];
-    }
     delete[] beta;
 
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            delete[] Px[i][j];
-        }
-        delete[] Px[i];
-    }
     delete[] Px;
 
-    for (int i = 0; i < TxAntNum; i++)
-    {
-        for (int j = 0; j < RxAntNum; j++)
-        {
-            delete[] sIndex[i][j];
-        }
-        delete[] sIndex[i];
-    }
     delete[] sIndex;
 
     delete[] sMean;
@@ -193,7 +113,7 @@ void ExBsPCD::execute()
 
     for (int i = 0; i < TxAntNum; i++)
     {
-        HtH[i][i] += Nv;
+        HtH[i * TxAntNum + i] += Nv;
     }
 
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum, TxAntNum, HtR);
@@ -205,12 +125,13 @@ void ExBsPCD::execute()
 
     // usually, use i for TxAntNum, j for RxAntNum, k for ConSize
 
+    memset(Px, 0, TxAntNum * RxAntNum * ConSize * sizeof(double));
     for (int i = 0; i < TxAntNum; i++)
     {
         std::complex<double> MMSEEst = 0;
         for (int j = 0; j < TxAntNum; j++)
         {
-            MMSEEst += HtHInv[i][j] * HtR[j];
+            MMSEEst += HtHInv[i * TxAntNum + j] * HtR[j];
         }
 
         double minDist = 1e10;
@@ -219,7 +140,7 @@ void ExBsPCD::execute()
         {
             double dist = std::abs(ConsComplex[k] - MMSEEst);
             distList[k] = dist;
-            gamma[i][k] = -dist; // This is important for the std::copy_n later
+            gamma[i * ConSize + k] = -dist;
 
             if (dist < minDist)
             {
@@ -230,15 +151,15 @@ void ExBsPCD::execute()
 
         for (int j = 0; j < RxAntNum; j++)
         {
-            std::copy_n(gamma[i], ConSize, alpha[i][j]); // Copy gamma[i] to each alpha[i][j]
-            memset(Px[i][j], 0, ConSize * sizeof(double));
-            Px[i][j][bestIndex] = 1;
+            std::copy_n(&gamma[i * ConSize], ConSize, &alpha[(i * RxAntNum + j) * ConSize]);
+            
+            Px[(i * RxAntNum + j) * ConSize + bestIndex] = 1;
         }
 
         mink(distList, ConSize, minkRes, dm);
         for (int j = 0; j < RxAntNum; j++)
         {
-            std::copy_n(minkRes, dm, sIndex[i][j]);
+            std::copy_n(minkRes, dm, &sIndex[(i * RxAntNum + j) * dm]);
         }
     }
 
@@ -249,7 +170,7 @@ void ExBsPCD::execute()
         {
             for (int k = 0; k < ConSize; k++)
             {
-                precomputedHCons[j * TxAntNum * ConSize + i * ConSize + k] = H[j][i] * ConsComplex[k];
+                precomputedHCons[j * TxAntNum * ConSize + i * ConSize + k] = H[j * TxAntNum + i] * ConsComplex[k];
             }
         }
     }
@@ -267,12 +188,12 @@ void ExBsPCD::execute()
                 // double sGAI_var = 0;
                 for (int k = 0; k < dm; k++)
                 {
-                    int index = sIndex[i][j][k];
-                    sGAI += Px[i][j][index] * ConsComplex[index];
+                    int index = sIndex[(i * RxAntNum + j) * dm + k];
+                    sGAI += Px[(i * RxAntNum + j) * ConSize + index] * ConsComplex[index];
                     // sGAI_var += std::abs(Px[i][j][index] * ConsComplex[index]) * std::abs(Px[i][j][index] * ConsComplex[index]);
                 }
 
-                sMean[i] = H[j][i] * sGAI;
+                sMean[i] = H[j * TxAntNum + i] * sGAI;
                 // sVar[i] = std::norm(H[j][i]) * (sGAI_var - std::norm(sGAI));
 
                 mean_incoming_all += sMean[i];
@@ -284,13 +205,13 @@ void ExBsPCD::execute()
             {
                 std::complex<double> sMean_in = mean_incoming_all - sMean[i];
                 // double sVar_in = var_incoming_all - sVar[i] + Nv;
-                std::complex<double> HS_0 = H[j][i] * ConsComplex[0];
+                std::complex<double> HS_0 = H[j * TxAntNum + i] * ConsComplex[0];
 
                 for (int k = 0; k < ConSize; k++)
                 {
                     std::complex<double> HS = precomputedHCons[j * TxAntNum * ConSize + i * ConSize + k];
                     // beta[j][i][k] =  -std::norm(RxSymbols[j] - sMean_in - HS) / sVar_in + std::norm(RxSymbols[j] - sMean_in - HS_0) / sVar_in;
-                    beta[j][i][k] = (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) * NvInv * 0.5;
+                    beta[j * TxAntNum * ConSize + i * ConSize + k] = (-std::norm(RxSymbols[j] - sMean_in - HS) + std::norm(RxSymbols[j] - sMean_in - HS_0)) * NvInv * 0.5;
                 }
             }
         }
@@ -299,55 +220,39 @@ void ExBsPCD::execute()
         {
             for (int k = 0; k < ConSize; k++)
             {
-                gamma[i][k] = 0;
+                gamma[i * ConSize + k] = 0;
                 for (int j = 0; j < RxAntNum; j++)
                 {
-                    gamma[i][k] += beta[j][i][k];
+                    gamma[i * ConSize + k] += beta[j * TxAntNum * ConSize + i * ConSize + k];
                 }
             }
         }
 
+        memset(Px, 0, TxAntNum * RxAntNum * ConSize * sizeof(double));
         for (int j = 0; j < RxAntNum; j++)
         {
             for (int i = 0; i < TxAntNum; i++)
             {
                 for (int k = 0; k < ConSize; k++)
                 {
-                    alpha[i][j][k] = gamma[i][k] - beta[j][i][k];
+                    // alpha[i][j][k] = gamma[i][k] - beta[j][i][k];
+                    alpha[(i * RxAntNum + j) * ConSize + k] = gamma[i * ConSize + k] - beta[j * TxAntNum * ConSize + i * ConSize + k];
                 }
-
-                // turn off reordering according to zwy
-                //     maxk(alpha_ems, ConSize, idx_ems, dm);
-
-                //     double expAlphaSum = 0;
-                //     for (int k = 0; k < dm; k++)
-                //     {
-                //         expAlpha[k] = exp(alpha_ems[idx_ems[k]] - alpha_ems[idx_ems[0]]);
-                //         expAlphaSum += expAlpha[k];
-                //     }
-
-                //     memset(Px[i][j], 0, ConSize * sizeof(double));
-                //     for (int k = 0; k < dm; k++)
-                //     {
-                //         sIndex[i][j][k] = idx_ems[k];
-                //         Px[i][j][idx_ems[k]] = expAlpha[k] / expAlphaSum;
-                //     }
-                // }
 
                 double expAlphaSum = 0.0;
                 for (int k = 0; k < dm; k++)
                 {
-                    int idx = sIndex[i][j][k];
-                    expAlpha[k] = exp(alpha[i][j][idx] - alpha[i][j][sIndex[i][j][0]]);
+                    int idx = sIndex[(i * RxAntNum + j) * dm + k];
+                    // expAlpha[k] = exp(alpha[i][j][idx] - alpha[i][j][sIndex[i][j][0]]);
+                    expAlpha[k] = std::exp(alpha[(i * RxAntNum + j) * ConSize + idx] - alpha[(i * RxAntNum + j) * ConSize + sIndex[(i * RxAntNum + j) * dm + 0]]);
                     expAlphaSum += expAlpha[k];
                 }
 
                 // Update Px[i][j]
-                memset(Px[i][j], 0, ConSize * sizeof(double));
                 for (int k = 0; k < dm; k++)
                 {
-                    int idx = sIndex[i][j][k];
-                    Px[i][j][idx] = expAlpha[k] / expAlphaSum;
+                    int idx = sIndex[(i * RxAntNum + j) * dm + k];
+                    Px[(i * RxAntNum + j) * ConSize + idx] = expAlpha[k] / expAlphaSum;
                 }
             }
         }
@@ -361,9 +266,9 @@ void ExBsPCD::execute()
         int maxIndex = 0;
         for (int k = 0; k < ConSize; k++)
         {
-            if (gamma[i][k] > maxGamma)
+            if (gamma[i * ConSize + k] > maxGamma)
             {
-                maxGamma = gamma[i][k];
+                maxGamma = gamma[i * ConSize + k];
                 maxIndex = k;
             }
         }

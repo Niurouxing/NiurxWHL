@@ -59,15 +59,8 @@ MMSECD::MMSECD(): DetectionAlgorithmCD() {
 void MMSECD::bind(Detection* detection) {
     DetectionAlgorithmCD::bind(detection);
 
-    HtH= new std::complex<double>*[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++) {
-        HtH[i] = new std::complex<double>[TxAntNum];
-    }
-
-    HtHInv= new std::complex<double>*[TxAntNum];
-    for (int i = 0; i < TxAntNum; i++) {
-        HtHInv[i] = new std::complex<double>[TxAntNum];
-    }
+    HtH= new std::complex<double> [TxAntNum * TxAntNum];
+    HtHInv= new std::complex<double> [TxAntNum * TxAntNum];
 
     HtR = new std::complex<double>[TxAntNum];
     TxSymbolsEst = new std::complex<double>[TxAntNum];
@@ -81,7 +74,7 @@ void MMSECD::execute() {
     MatrixTransposeMultiplyMatrix(H, H, RxAntNum, TxAntNum, TxAntNum, HtH);
  
     for (int i = 0; i < TxAntNum; i++) {
-        HtH[i][i] += Nv;
+        HtH[i * TxAntNum + i] += Nv;
     }
 
     choleskyInv->execute(HtH, HtHInv);
@@ -92,10 +85,7 @@ void MMSECD::execute() {
 }
 
 MMSECD::~MMSECD() {
-    for (int i = 0; i < TxAntNum; i++) {
-        delete[] HtH[i];
-        delete[] HtHInv[i];
-    }
+    
     delete[] HtH;
     delete[] HtHInv;
     delete[] HtR;

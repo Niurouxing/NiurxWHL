@@ -139,6 +139,48 @@ void CholeskyInv::execute(std::complex<double> ** a, std::complex<double> ** aIn
     }
 }
 
+void CholeskyInv::execute(std::complex<double> * a, std::complex<double> * aInv) {
+    std::memset(lComplex, 0, size * size * sizeof(std::complex<double>));
+
+    // Cholesky 分解 - 复数版
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j <= i; ++j) {
+            std::complex<double> sum = 0;
+            for (int k = 0; k < j; ++k) {
+                sum += lComplex[i * size + k] * std::conj(lComplex[j * size + k]);
+            }
+            if (i == j) {
+                lComplex[i * size + j] = std::sqrt(a[i * size + j] - sum);
+            } else {
+                lComplex[i * size + j] = (1.0 / lComplex[j * size + j] * (a[i * size + j] - sum));
+            }
+        }
+    }
+
+    // 求逆 - 复数版
+    for (int i = 0; i < size; ++i) {
+        std::memset(yComplex, 0, size * sizeof(std::complex<double>));
+
+        // 前向替换求解 L * y = e_i
+        for (int j = 0; j < size; ++j) {
+            yComplex[j] = (j == i) ? 1.0 : 0.0;
+            for (int k = 0; k < j; ++k) {
+                yComplex[j] -= lComplex[j * size + k] * yComplex[k];
+            }
+            yComplex[j] /= lComplex[j * size + j];
+        }
+
+        // 后向替换求解 L^T * x = y
+        for (int j = size - 1; j >= 0; --j) {
+            aInv[j * size + i] = yComplex[j];
+            for (int k = j + 1; k < size; ++k) {
+                aInv[j * size + i] -= std::conj(lComplex[k * size + j]) * aInv[k * size + i];
+            }
+            aInv[j * size + i] /= std::conj(lComplex[j * size + j]);
+        }
+    }
+}
+
 CholeskyInv::~CholeskyInv() {
     if (isComplex) {
         delete[] lComplex;

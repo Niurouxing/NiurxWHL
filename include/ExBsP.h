@@ -9,27 +9,28 @@ class CholeskyInv;
 class ExBsPCD: public DetectionAlgorithmCD {
     private:
         int iter, dm;
-        std::complex<double> ** HtH;
-        std::complex<double> ** HtHInv;
+        std::complex<double> * HtH;
+        std::complex<double> * HtHInv;
         std::complex<double> * HtR;
 
         CholeskyInv * choleskyInv;
 
 
-        double ** gamma;
+        // alpha 2D Matrix with shape [TxAntNum][ConSize]
+        double * gamma;
 
         // alpha 3D Matrix with shape [TxAntNum][RxAntNum][ConSize]
-        double *** alpha;
+        double * alpha;
 
         // beta 3D Matrix with shape [RxAntNum][TxAntNum][ConSize]
-        double *** beta;
+        double * beta;
 
         // Px 3D Matrix with shape [TxAntNum][RxAntNum][ConSize]
-        double *** Px;
+        double * Px;
 
         // sIndex 3D Matrix with shape [TxAntNum][RxAntNum][dm]
         // represents the index of the dm most possible symbols, decided by MMSE
-        int *** sIndex;
+        int * sIndex;
 
         std::complex<double> * sMean;
         // double * sVar;

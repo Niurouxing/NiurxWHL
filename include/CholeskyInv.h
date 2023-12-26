@@ -17,5 +17,6 @@ class CholeskyInv
         void execute(double * A, double * AInv);
         void execute(double ** A, double ** AInv);
         void execute(std::complex<double> ** A, std::complex<double> ** AInv);
+        void execute(std::complex<double> * A, std::complex<double> * AInv);
         ~CholeskyInv();
 };

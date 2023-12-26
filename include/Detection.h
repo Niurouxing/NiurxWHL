@@ -33,7 +33,7 @@ class DetectionRD : public Detection{
 
         // used in real domain
         double * TxSymbols;
-        double ** H;
+        double * H;
         double * RxSymbols;
         const double * Cons;
         const double * Cons2;
@@ -52,7 +52,7 @@ class DetectionCD : public Detection{
 
         // used in complex domain
         std::complex<double> * TxSymbols;
-        std::complex<double> ** H;
+        std::complex<double> * H;
         std::complex<double> * RxSymbols;
 
         int* TxIndiceCD;

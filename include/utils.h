@@ -5,12 +5,9 @@
 #include <complex>
 #include <algorithm>
 
-// if on ubuntu include cblas.h, if on macos include Accelerate/Accelerate.h
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#else
-#include <cblas.h>
-#endif
+
+#include "cblas.h"
+
 
 #define sqrt2 1.4142135623730951
 #define sqrt2_div 0.7071067811865475
@@ -81,27 +78,6 @@ inline void maxk(double *arr, int n, int *result, int k)
     }
 }
 
-inline void initializeMatrix(double **Mat, int row, int col)
-{
-
-    Mat = new double *[row];
-    for (int i = 0; i < row; i++)
-    {
-        Mat[i] = new double[col];
-    }
-}
-
-inline void MatrixMultiplyVector(double **Mat, double *Vec, int row, int col, double *result)
-{
-    for (int i = 0; i < row; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < col; j++)
-        {
-            result[i] += Mat[i][j] * Vec[j];
-        }
-    }
-}
 
 inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
@@ -115,29 +91,18 @@ inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, dou
     }
 }
 
-inline void MatrixMultiplyVector(std::complex<double> **Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
+inline void MatrixMultiplyVector(std::complex<double> *Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
 {
     for (int i = 0; i < row; i++)
     {
         result[i] = 0;
         for (int j = 0; j < col; j++)
         {
-            result[i] += Mat[i][j] * Vec[j];
+            result[i] += Mat[i * col + j] * Vec[j];
         }
     }
 }
 
-inline void MatrixTransposeMultiplyVector(double **Mat, double *Vec, int row, int col, double *result)
-{
-    for (int i = 0; i < col; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < row; j++)
-        {
-            result[i] += Mat[j][i] * Vec[j];
-        }
-    }
-}
 
 inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
@@ -151,43 +116,19 @@ inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int
     }
 }
 
-inline void MatrixTransposeMultiplyVector(std::complex<double> **Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
+inline void MatrixTransposeMultiplyVector(std::complex<double> *Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
 {
     for (int i = 0; i < col; i++)
     {
         result[i] = 0;
         for (int j = 0; j < row; j++)
         {
-            result[i] += std::conj(Mat[j][i]) * Vec[j];
+            result[i] += std::conj(Mat[j * col + i]) * Vec[j];
         }
     }
 }
 
-inline void MatrixMultiplyMatrix(double **Mat1, double **Mat2, int row1, int col1, int col2, double **result)
-{
-    for (int i = 0; i < row1; i++)
-    {
-        for (int j = 0; j < col2; j++)
-        {
-            result[i][j] = 0;
-            for (int k = 0; k < col1; k++)
-            {
-                result[i][j] += Mat1[i][k] * Mat2[k][j];
-            }
-        }
-    }
-}
 
-// inline void MatrixMultiplyMatrix(double* Mat1, double* Mat2, int row1, int col1, int col2, double* result) {
-//     for (int i = 0; i < row1; i++) {
-//         for (int j = 0; j < col2; j++) {
-//             result[i * col2 + j] = 0;
-//             for (int k = 0; k < col1; k++) {
-//                 result[i * col2 + j] += Mat1[i * col1 + k] * Mat2[k * col2 + j];
-//             }
-//         }
-//     }
-// }
 
 //  BLAS版本
 inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1, int col2, double *result)
@@ -199,50 +140,6 @@ inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1,
                 alpha, Mat1, col1, Mat2, col2, beta, result, col2);
 }
 
-inline void MatrixMultiplyMatrix(double **Mat1, double **Mat2, int row1, int col1, int col2, double *result)
-{
-    for (int i = 0; i < row1; i++)
-    {
-        for (int j = 0; j < col2; j++)
-        {
-            result[i * col2 + j] = 0;
-            for (int k = 0; k < col1; k++)
-            {
-                result[i * col2 + j] += Mat1[i][k] * Mat2[k][j];
-            }
-        }
-    }
-}
-
-inline void MatrixMultiplyMatrix(std::complex<double> **Mat1, std::complex<double> **Mat2, int row1, int col1, int col2, std::complex<double> **result)
-{
-    for (int i = 0; i < row1; i++)
-    {
-        for (int j = 0; j < col2; j++)
-        {
-            result[i][j] = std::complex<double>(0, 0);
-            for (int k = 0; k < col1; k++)
-            {
-                result[i][j] += Mat1[i][k] * Mat2[k][j];
-            }
-        }
-    }
-}
-
-inline void MatrixTransposeMultiplyMatrix(double **Mat1, double **Mat2, int row1, int col1, int col2, double **result)
-{
-    for (int i = 0; i < col1; i++)
-    {
-        for (int j = 0; j < col2; j++)
-        {
-            result[i][j] = 0;
-            for (int k = 0; k < row1; k++)
-            {
-                result[i][j] += Mat1[k][i] * Mat2[k][j];
-            }
-        }
-    }
-}
 
 inline void MatrixTransposeMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1, int col2, double *result)
 {
@@ -259,7 +156,7 @@ inline void MatrixTransposeMultiplyMatrix(double *Mat1, double *Mat2, int row1, 
     }
 }
 
-inline void MatrixTransposeMultiplyMatrix(double **Mat1, double **Mat2, int row1, int col1, int col2, double *result)
+inline void MatrixTransposeMultiplyMatrix(std::complex<double> *Mat1, std::complex<double> *Mat2, int row1, int col1, int col2, std::complex<double> *result)
 {
     for (int i = 0; i < col1; i++)
     {
@@ -268,55 +165,8 @@ inline void MatrixTransposeMultiplyMatrix(double **Mat1, double **Mat2, int row1
             result[i * col2 + j] = 0;
             for (int k = 0; k < row1; k++)
             {
-                result[i * col2 + j] += Mat1[k][i] * Mat2[k][j];
+                result[i * col2 + j] += std::conj(Mat1[k * col1 + i]) * Mat2[k * col2 + j];
             }
-        }
-    }
-}
-
-inline void MatrixTransposeMultiplyMatrix(std::complex<double> **Mat1, std::complex<double> **Mat2, int row1, int col1, int col2, std::complex<double> **result)
-{
-    for (int i = 0; i < col1; i++)
-    {
-        for (int j = 0; j < col2; j++)
-        {
-            result[i][j] = std::complex<double>(0, 0);
-            for (int k = 0; k < row1; k++)
-            {
-                result[i][j] += std::conj(Mat1[k][i]) * Mat2[k][j];
-            }
-        }
-    }
-}
-
-inline void MatrixTransposeMultiplySelf(double **Mat, int row, int col, double **result)
-{
-    for (int i = 0; i < col; i++)
-    {
-        for (int j = i; j < col; j++)
-        {
-            result[i][j] = 0;
-            for (int k = 0; k < row; k++)
-            {
-                result[i][j] += Mat[k][i] * Mat[k][j];
-            }
-            result[j][i] = result[i][j];
-        }
-    }
-}
-
-inline void MatrixTransposeMultiplySelf(double **Mat, int row, int col, double *result)
-{
-    for (int i = 0; i < col; i++)
-    {
-        for (int j = i; j < col; j++)
-        {
-            result[i * col + j] = 0;
-            for (int k = 0; k < row; k++)
-            {
-                result[i * col + j] += Mat[k][i] * Mat[k][j];
-            }
-            result[j * col + i] = result[i * col + j];
         }
     }
 }

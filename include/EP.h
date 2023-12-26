@@ -26,17 +26,17 @@ class EP: public DetectionAlgorithmRD {
         double * h2;
         double * t;
 
-        double ** prob;
+        double * prob;
         double * sigma2_p;
 
         double * mu_p;
 
-        double ** HtH;
-        double ** HtHMod;
+        double * HtH;
+        double * HtHMod;
 
         double * HtR;
 
-        double ** Sigma_q;
+        double * Sigma_q;
 
         double * Mu_q;
 

@@ -26,8 +26,8 @@ class MMSE: public DetectionAlgorithmRD {
 
 class MMSECD: public DetectionAlgorithmCD {
     private:
-        std::complex<double> ** HtH;
-        std::complex<double> ** HtHInv;
+        std::complex<double> * HtH;
+        std::complex<double> * HtHInv;
         std::complex<double> * HtR;
 
         std::complex<double> * TxSymbolsEst;
