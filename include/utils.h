@@ -7,6 +7,7 @@
 
 
 #include "cblas.h"
+#include <lapacke.h>
 
 
 #define sqrt2 1.4142135623730951
@@ -178,6 +179,69 @@ inline void MatrixTransposeMultiplySelf(double *Mat, int row, int col, double *r
                 1.0, Mat, col,
                 Mat, col,
                 0.0, result, col);
+}
+
+
+inline void MatrixTransposeMultiplySelf(std::complex<double> *Mat, int row, int col, std::complex<double> *result)
+{
+    // 注意：BLAS中复数类型用 void* 传递。
+    static const std::complex<double> alpha = 1.0;
+    static const std::complex<double> beta = 0.0;
+
+    cblas_zgemm(CblasRowMajor, CblasConjTrans, CblasNoTrans,
+                col, col, row,
+                &alpha, Mat, col,
+                Mat, col,
+                &beta, result, col);
+}
+
+ // Function to solve A*X = B for a Hermitian positive definite matrix A, stored in row-major order
+inline bool solveHermitianPositiveDefiniteSystem(
+    double* A,  // Input matrix A, stored in row-major order, modified on output
+    double* B,  // Input matrix B, stored in row-major order, solution X on output
+    int n,      // The order of matrix A and number of rows in B
+    int nrhs =1    // Number of columns in B (number of right-hand sides)
+) {
+    // Perform Cholesky decomposition A = L*L^H in row-major order
+    int info = LAPACKE_dpotrf(LAPACK_ROW_MAJOR, 'U', n, A, n);
+    if (info != 0) {
+        std::cerr << "Cholesky decomposition failed with info = " << info << ".\n";
+        return false;
+    }
+
+    // Solve the equation A*X = B for X in row-major order
+    info = LAPACKE_dpotrs(LAPACK_ROW_MAJOR, 'U', n, nrhs, A, n, B, 1);
+    if (info != 0) {
+        std::cerr << "Solving linear system failed with info = " << info << ".\n";
+        return false;
+    }
+
+    return true;
+}
+
+// solve Ax = b, A is a Hermitian positive definite matrix like HtH
+// Warning: this function will change the input matrix A, and the result will be stored in b
+inline bool solveHermitianPositiveDefiniteSystem(
+    std::complex<double>* A,  // Input matrix A, stored in row-major order, modified on output
+    std::complex<double>* B,  // Input matrix B, stored in row-major order, solution X on output
+    int n,       // The order of matrix A and number of rows in B
+    int nrhs=1     // Number of columns in B (number of right-hand sides)
+) {
+    // Perform Cholesky decomposition A = U^H * U
+    int info = LAPACKE_zpotrf(LAPACK_ROW_MAJOR, 'U', n, reinterpret_cast<lapack_complex_double*>(A), n);
+    if (info != 0) {
+        std::cerr << "Cholesky decomposition failed with info = " << info << ".\n";
+        return false;
+    }
+
+    // Solve the equation A*X = B for X in row-major order
+    info = LAPACKE_zpotrs(LAPACK_ROW_MAJOR, 'U', n, nrhs, reinterpret_cast<lapack_complex_double*>(A), n, reinterpret_cast<lapack_complex_double*>(B), 1); // https://github.com/OpenMathLib/OpenBLAS/issues/2188
+    if (info != 0) {
+        std::cerr << "Solving linear system failed with info = " << info << ".\n";
+        return false;
+    }
+
+    return true;
 }
 
 // only for test, never use it in real project

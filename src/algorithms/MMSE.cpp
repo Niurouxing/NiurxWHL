@@ -9,7 +9,6 @@ MMSE::MMSE(): DetectionAlgorithmRD() {
     HtHInv = nullptr;
     HtR = nullptr;
     TxSymbolsEst = nullptr;
-    choleskyInv = nullptr;
 }
 
 void MMSE::bind(Detection* detection) {
@@ -19,7 +18,6 @@ void MMSE::bind(Detection* detection) {
     HtHInv = new double[TxAntNum2 * TxAntNum2];
     HtR = new double[TxAntNum2];
     TxSymbolsEst = new double[TxAntNum2];
-    choleskyInv = new CholeskyInv(TxAntNum2);
 }
 
 
@@ -33,11 +31,9 @@ void MMSE::execute() {
         HtH[i * TxAntNum2 + i] += Nv;
     }
 
-    choleskyInv->execute(HtH, HtHInv);
-     
-    MatrixMultiplyVector(HtHInv, HtR, TxAntNum2, TxAntNum2, TxSymbolsEst);
+    solveHermitianPositiveDefiniteSystem(HtH, HtR, TxAntNum2);
 
-    symbolsToBits(TxSymbolsEst);
+    symbolsToBits(HtR);
 }
 
 MMSE::~MMSE() {
@@ -45,7 +41,6 @@ MMSE::~MMSE() {
     delete[] HtHInv;
     delete[] HtR;
     delete[] TxSymbolsEst;
-    delete choleskyInv;
 }
 
 MMSECD::MMSECD(): DetectionAlgorithmCD() {
@@ -53,7 +48,6 @@ MMSECD::MMSECD(): DetectionAlgorithmCD() {
     HtHInv = nullptr;
     HtR = nullptr;
     TxSymbolsEst = nullptr;
-    choleskyInv = nullptr;
 }
 
 void MMSECD::bind(Detection* detection) {
@@ -64,7 +58,6 @@ void MMSECD::bind(Detection* detection) {
 
     HtR = new std::complex<double>[TxAntNum];
     TxSymbolsEst = new std::complex<double>[TxAntNum];
-    choleskyInv = new CholeskyInv(TxAntNum, true);
 }
 
 void MMSECD::execute() {
@@ -77,11 +70,10 @@ void MMSECD::execute() {
         HtH[i * TxAntNum + i] += Nv;
     }
 
-    choleskyInv->execute(HtH, HtHInv);
+    solveHermitianPositiveDefiniteSystem(HtH, HtR, TxAntNum);
 
-    MatrixMultiplyVector(HtHInv, HtR, TxAntNum, TxAntNum, TxSymbolsEst);
 
-    symbolsToBits(TxSymbolsEst);
+    symbolsToBits(HtR);
 }
 
 MMSECD::~MMSECD() {
@@ -90,6 +82,5 @@ MMSECD::~MMSECD() {
     delete[] HtHInv;
     delete[] HtR;
     delete[] TxSymbolsEst;
-    delete choleskyInv;
 }
 
