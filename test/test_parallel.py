@@ -9,8 +9,8 @@ from tqdm import tqdm
 import numpy as np
 
 
-TxAntNum = 64
-RxAntNum = 128
+TxAntNum = 32
+RxAntNum = 64
 ModType = 8
 
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = 32
+        num_processes = os.cpu_count()
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:

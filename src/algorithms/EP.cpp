@@ -132,6 +132,7 @@ void EP::execute(){
     // Mu_q = Sigma_q * HtR
     MatrixMultiplyVector(Sigma_q, HtR, TxAntNum2, TxAntNum2, Mu_q);
 
+
     for (int i = 0; i < iter; i++) {
         for (int j = 0; j < TxAntNum2; j++) {
 

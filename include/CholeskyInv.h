@@ -1,7 +1,7 @@
 #pragma once
 
 #include <complex>
-// reserved for test, do not use it
+// faster in small matrix
 class CholeskyInv
 {
     private:

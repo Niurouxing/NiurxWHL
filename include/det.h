@@ -9,7 +9,7 @@
 
 std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
     Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new MMSE();
+    DetectionAlgorithm * alg = new EP(10,0.9);
 
     alg->bind(det);
 

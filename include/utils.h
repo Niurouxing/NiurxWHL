@@ -244,6 +244,30 @@ inline bool solveHermitianPositiveDefiniteSystem(
     return true;
 }
 
+
+// solve inv(A), A is a Hermitian positive definite matrix like HtH
+// Warning: this function will change the input matrix A, and the result will be stored in A
+// Warning: this function will only return the upper triangular part of the matrix A
+inline bool solveHermitianPositiveDefiniteInv(
+    double* A,  // Input matrix A, stored in row-major order, modified on output
+    int n      // The order of matrix A and number of rows in B
+) {
+    // Perform Cholesky decomposition A = L*L^H in row-major order
+    int info = LAPACKE_dpotrf(LAPACK_ROW_MAJOR, 'U', n, A, n);
+    // if (info != 0) {
+    //     std::cerr << "Cholesky decomposition failed with info = " << info << ".\n";
+    //     return false;
+    // }
+    
+    info = LAPACKE_dpotri(LAPACK_ROW_MAJOR, 'U', n,  A, n);
+    // if (info != 0) {
+    //     std::cerr << "Solving linear system failed with info = " << info << ".\n";
+    //     return false;
+    // }
+
+    return true;
+}
+
 // only for test, never use it in real project
 template <typename T>
 void printVector(T *Vec, int length, std::string name = "")

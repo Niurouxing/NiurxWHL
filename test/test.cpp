@@ -14,11 +14,11 @@ int main(){
     int TxAntNum = 8;
     int RxAntNum = 16;
     int ModType = 8;
-    double SNRdB = 30;
+    double SNRdB = 18;
     int sample = 1000;
 
     Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new MMSE();
+    DetectionAlgorithm * alg = new EP(3,0.9);
 
     alg->bind(det);
 
