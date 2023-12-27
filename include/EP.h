@@ -41,8 +41,6 @@ class EP: public DetectionAlgorithmRD {
         double * Mu_q;
 
 
- 
-        CholeskyInv * choleskyInv;
 
         // 中间变量
 

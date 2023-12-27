@@ -8,8 +8,9 @@
 
 
 std::tuple<int,int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample){
+    openblas_set_num_threads(1);
     Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new EP(10,0.9);
+    DetectionAlgorithm * alg = new EP(5,0.9);
 
     alg->bind(det);
 

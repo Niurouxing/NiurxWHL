@@ -14,13 +14,13 @@ RxAntNum = 64
 ModType = 8
 
 
-startSNR=30
+startSNR=10
 endSNR=50
 stepSNR=3
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 20000000
-samplesPreIter=100
+samplesPreIter=1000
 
 
 def worker(queue,samples,snr):

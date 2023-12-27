@@ -79,6 +79,11 @@ inline void maxk(double *arr, int n, int *result, int k)
     }
 }
 
+inline void VectorScale(double *Mat, int N, double constant)
+{
+    cblas_dscal(N, constant, Mat, 1);
+}
+
 
 inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
@@ -100,6 +105,14 @@ inline void MatrixMultiplyVector(std::complex<double> *Mat, std::complex<double>
                 &beta, result, 1);
 }
 
+inline void SymMatrixMultiplyVector(double *Mat, double *Vec, int N, double *result)
+{
+    cblas_dsymv(CblasRowMajor, CblasUpper,
+                N,
+                1.0, Mat, N,
+                Vec, 1,
+                0.0, result, 1);
+}
 
 inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
@@ -121,8 +134,6 @@ inline void MatrixTransposeMultiplyVector(std::complex<double> *Mat, std::comple
                 &beta, result, 1);
 }
 
-
-
 //  BLAS版本
 inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1, int col2, double *result)
 {
@@ -132,11 +143,6 @@ inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1,
                 row1, col2, col1,
                 alpha, Mat1, col1, Mat2, col2, beta, result, col2);
 }
-
-
- 
-
- 
 
 inline void MatrixTransposeMultiplySelf(double *Mat, int row, int col, double *result)
 {

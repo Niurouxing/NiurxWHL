@@ -27,7 +27,6 @@ EP::EP(int iter, double delta): DetectionAlgorithmRD() {
     HtR = nullptr;
     Sigma_q = nullptr;
     Mu_q = nullptr;
-    choleskyInv = nullptr;
     invOneMinusSigAlpha = nullptr;
     HtRAddGamma = nullptr;
 }
@@ -69,7 +68,6 @@ void EP::bind(Detection* detection) {
 
     Mu_q = new double[TxAntNum2];
 
-    choleskyInv = new CholeskyInv(TxAntNum2);
 
     invOneMinusSigAlpha = new double[TxAntNum2];
     HtRAddGamma = new double[TxAntNum2];
@@ -92,7 +90,6 @@ EP::~EP() {
     delete[] HtR;
     delete[] Sigma_q;
     delete[] Mu_q;
-    delete choleskyInv;
     delete[] invOneMinusSigAlpha;
     delete[] HtRAddGamma;
 }
@@ -103,34 +100,27 @@ void EP::execute(){
     memset(Alpha_new, 0, TxAntNum2 * sizeof(double));
     memset(Gamma_new, 0, TxAntNum2 * sizeof(double));
 
-    // HtH = H' * H / Nv
+
+
+    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, HtH);
+    VectorScale(HtH, TxAntNum2 * TxAntNum2, NvInv);
+    memcpy(HtHMod, HtH, TxAntNum2 * TxAntNum2 * sizeof(double));
     for (int i = 0; i < TxAntNum2; i++) {
-        for (int j = 0; j < TxAntNum2; j++) {
-            double sum = 0;
-            for (int k = 0; k < RxAntNum2; k++) {
-                sum += H[k * TxAntNum2 + i] * H[k * TxAntNum2 + j];
-            }
-            sum *= NvInv;
-            HtH[i * TxAntNum2 + j] = sum;
-            HtHMod[i * TxAntNum2 + j] = i == j ? sum + 2 : sum;
-        }
+        HtHMod[i * TxAntNum2 + i] += 2;
     }
+
 
     // HtR = H' * R / Nv
-    for (int i = 0; i < TxAntNum2; i++) {
-        double sum = 0;
-        for (int j = 0; j < RxAntNum2; j++) {
-            sum += H[j * TxAntNum2 + i] * RxSymbols[j];
-        }
-        HtR[i] = sum * NvInv;
-    }
+    MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, HtR);
+    VectorScale(HtR, TxAntNum2, NvInv);
 
 
-    // Sigma_q = inv(HtHMod)
-    choleskyInv -> execute(HtHMod, Sigma_q);
 
-    // Mu_q = Sigma_q * HtR
-    MatrixMultiplyVector(Sigma_q, HtR, TxAntNum2, TxAntNum2, Mu_q);
+
+    memcpy(Sigma_q, HtHMod, TxAntNum2 * TxAntNum2 * sizeof(double));
+    solveHermitianPositiveDefiniteInv(Sigma_q, TxAntNum2);
+
+    SymMatrixMultiplyVector(Sigma_q, HtR, TxAntNum2,  Mu_q);
 
 
     for (int i = 0; i < iter; i++) {
@@ -193,13 +183,15 @@ void EP::execute(){
             HtHMod[j * TxAntNum2 + j] = HtH[j * TxAntNum2 + j] + Alpha[j];
         }
 
-        choleskyInv -> execute(HtHMod, Sigma_q);
-
         for (int j = 0; j < TxAntNum2; j++) {
             HtRAddGamma[j] = HtR[j] + Gamma[j];
         }
 
-        MatrixMultiplyVector(Sigma_q, HtRAddGamma, TxAntNum2, TxAntNum2, Mu_q);
+        memcpy(Sigma_q, HtHMod, TxAntNum2 * TxAntNum2 * sizeof(double));
+        solveHermitianPositiveDefiniteInv(Sigma_q, TxAntNum2);
+
+        SymMatrixMultiplyVector(Sigma_q, HtRAddGamma, TxAntNum2,  Mu_q);
+
     }
 
     symbolsToBits(Mu_q);
