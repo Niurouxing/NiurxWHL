@@ -17,6 +17,12 @@ if(APPLE)
     # link_directories(${OpenBLAS_LIBRARIES})
 endif()
 
+if(UNIX AND NOT APPLE)
+    set(OpenBLAS_DIR /home/niurx/桌面/OpenBLAS-0.3.25/lib/cmake/openblas/)
+    find_package(OpenBLAS REQUIRED)
+    include_directories(${OpenBLAS_INCLUDE_DIRS})
+endif()
+
 add_subdirectory(pybind11)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -37,6 +43,11 @@ target_compile_definitions(${MODNAME} PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INF
 add_executable(MimoTest test/test.cpp ${CPP_FILES})
 
 if(APPLE)
+    target_link_libraries(${MODNAME} PRIVATE ${OpenBLAS_LIBRARIES})
+    target_link_libraries(MimoTest PRIVATE ${OpenBLAS_LIBRARIES})
+endif()
+
+if(UNIX AND NOT APPLE)
     target_link_libraries(${MODNAME} PRIVATE ${OpenBLAS_LIBRARIES})
     target_link_libraries(MimoTest PRIVATE ${OpenBLAS_LIBRARIES})
 endif()
