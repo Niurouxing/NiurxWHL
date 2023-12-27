@@ -102,8 +102,8 @@ void EP::execute(){
 
 
 
-    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, HtH);
-    VectorScale(HtH, TxAntNum2 * TxAntNum2, NvInv);
+    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, HtH, NvInv);
+ 
     memcpy(HtHMod, HtH, TxAntNum2 * TxAntNum2 * sizeof(double));
     for (int i = 0; i < TxAntNum2; i++) {
         HtHMod[i * TxAntNum2 + i] += 2;
@@ -111,11 +111,8 @@ void EP::execute(){
 
 
     // HtR = H' * R / Nv
-    MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, HtR);
-    VectorScale(HtR, TxAntNum2, NvInv);
-
-
-
+    MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, HtR, NvInv);
+ 
 
     memcpy(Sigma_q, HtHMod, TxAntNum2 * TxAntNum2 * sizeof(double));
     solveHermitianPositiveDefiniteInv(Sigma_q, TxAntNum2);

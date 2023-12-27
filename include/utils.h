@@ -85,11 +85,11 @@ inline void VectorScale(double *Mat, int N, double constant)
 }
 
 
-inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
+inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, double *result, double scale=1.0)
 {
     cblas_dgemv(CblasRowMajor, CblasNoTrans,
                 row, col,
-                1.0, Mat, col,
+                scale, Mat, col,
                 Vec, 1,
                 0.0, result, 1);
 }
@@ -105,20 +105,20 @@ inline void MatrixMultiplyVector(std::complex<double> *Mat, std::complex<double>
                 &beta, result, 1);
 }
 
-inline void SymMatrixMultiplyVector(double *Mat, double *Vec, int N, double *result)
+inline void SymMatrixMultiplyVector(double *Mat, double *Vec, int N, double *result, double scale=1.0)
 {
     cblas_dsymv(CblasRowMajor, CblasUpper,
                 N,
-                1.0, Mat, N,
+                scale, Mat, N,
                 Vec, 1,
                 0.0, result, 1);
 }
 
-inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
+inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int col, double *result, double scale=1.0)
 {
     cblas_dgemv(CblasRowMajor, CblasTrans,
                 row, col,
-                1.0, Mat, col,
+                scale, Mat, col,
                 Vec, 1,
                 0.0, result, 1);
 }
@@ -135,20 +135,19 @@ inline void MatrixTransposeMultiplyVector(std::complex<double> *Mat, std::comple
 }
 
 //  BLAS版本
-inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1, int col2, double *result)
+inline void MatrixMultiplyMatrix(double *Mat1, double *Mat2, int row1, int col1, int col2, double *result, double scale=1.0)
 {
-    double alpha = 1.0;
-    double beta = 0.0;
     cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
                 row1, col2, col1,
-                alpha, Mat1, col1, Mat2, col2, beta, result, col2);
+                scale, Mat1, col1, Mat2, col2, 0.0, result, col2);
 }
+ 
 
-inline void MatrixTransposeMultiplySelf(double *Mat, int row, int col, double *result)
+inline void MatrixTransposeMultiplySelf(double *Mat, int row, int col, double *result,double scale=1.0)
 {
     cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans,
                 col, col, row,
-                1.0, Mat, col,
+                scale, Mat, col,
                 Mat, col,
                 0.0, result, col);
 }
