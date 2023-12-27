@@ -64,7 +64,7 @@ void MMSECD::execute() {
 
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum, TxAntNum, HtR);
 
-    MatrixTransposeMultiplyMatrix(H, H, RxAntNum, TxAntNum, TxAntNum, HtH);
+    MatrixTransposeMultiplySelf(H, RxAntNum, TxAntNum, HtH);
  
     for (int i = 0; i < TxAntNum; i++) {
         HtH[i * TxAntNum + i] += Nv;

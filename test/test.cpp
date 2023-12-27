@@ -11,14 +11,15 @@
 
 int main(){
 
-    int TxAntNum = 8;
-    int RxAntNum = 16;
+    openblas_set_num_threads(1);
+    int TxAntNum = 32;
+    int RxAntNum = 64;
     int ModType = 8;
-    double SNRdB = 18;
+    double SNRdB = 25;
     int sample = 1000;
 
-    Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new EP(3,0.9);
+    Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm * alg = new ExBsPCD(3,3);
 
     alg->bind(det);
 

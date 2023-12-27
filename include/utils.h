@@ -82,51 +82,43 @@ inline void maxk(double *arr, int n, int *result, int k)
 
 inline void MatrixMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
-    for (int i = 0; i < row; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < col; j++)
-        {
-            result[i] += Mat[i * col + j] * Vec[j];
-        }
-    }
+    cblas_dgemv(CblasRowMajor, CblasNoTrans,
+                row, col,
+                1.0, Mat, col,
+                Vec, 1,
+                0.0, result, 1);
 }
 
 inline void MatrixMultiplyVector(std::complex<double> *Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
 {
-    for (int i = 0; i < row; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < col; j++)
-        {
-            result[i] += Mat[i * col + j] * Vec[j];
-        }
-    }
+    static const std::complex<double> alpha = 1.0;
+    static const std::complex<double> beta = 0.0;
+    cblas_zgemv(CblasRowMajor, CblasNoTrans,
+                row, col,
+                &alpha, Mat, col,
+                Vec, 1,
+                &beta, result, 1);
 }
 
 
 inline void MatrixTransposeMultiplyVector(double *Mat, double *Vec, int row, int col, double *result)
 {
-    for (int i = 0; i < col; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < row; j++)
-        {
-            result[i] += Mat[j * col + i] * Vec[j];
-        }
-    }
+    cblas_dgemv(CblasRowMajor, CblasTrans,
+                row, col,
+                1.0, Mat, col,
+                Vec, 1,
+                0.0, result, 1);
 }
 
 inline void MatrixTransposeMultiplyVector(std::complex<double> *Mat, std::complex<double> *Vec, int row, int col, std::complex<double> *result)
 {
-    for (int i = 0; i < col; i++)
-    {
-        result[i] = 0;
-        for (int j = 0; j < row; j++)
-        {
-            result[i] += std::conj(Mat[j * col + i]) * Vec[j];
-        }
-    }
+    static const std::complex<double> alpha = 1.0;
+    static const std::complex<double> beta = 0.0;
+    cblas_zgemv(CblasRowMajor, CblasConjTrans,
+                row, col,
+                &alpha, Mat, col,
+                Vec, 1,
+                &beta, result, 1);
 }
 
 
