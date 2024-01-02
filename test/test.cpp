@@ -7,6 +7,7 @@
 #include <iostream>
 #include <chrono>
 
+#include "NBLDPC.h"
  
 
 int main(){
@@ -16,7 +17,7 @@ int main(){
     int RxAntNum = 64;
     int ModType = 8;
     double SNRdB = 20;
-    int sample = 1000;
+    int sample = 10;
 
     Detection * det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
     DetectionAlgorithm * alg = new EP(5,0.9);
@@ -36,6 +37,34 @@ int main(){
     std::cout << "Error bits: " << alg->getErrorBits() << std::endl;
     std::cout << "Error frames: " << alg->getErrorFrames() << std::endl;
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+
+
+    NBLDPC * nbldpc = new NBLDPC();
+    nbldpc->initialize(96,48,64,20,20);
+    
+    // print code->mat, code->matValue
+    for(int i=0;i<nbldpc->code->M;i++){
+        for(int j=0;j<nbldpc->code->rowDegree[i];j++){
+            std::cout << nbldpc->code->mat[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    for(int i=0;i<nbldpc->code->M;i++){
+        for(int j=0;j<nbldpc->code->rowDegree[i];j++){
+            std::cout << nbldpc->code->matValue[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // print matUT
+    for(int i=0;i<nbldpc->code->M;i++){
+        for(int j=0;j<nbldpc->code->N;j++){
+            std::cout << nbldpc->code->matUT[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 
 
     return 0;

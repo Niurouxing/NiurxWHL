@@ -24,7 +24,27 @@ if(UNIX AND NOT APPLE)
 endif()
 
 add_subdirectory(pybind11)
-include_directories(${PROJECT_SOURCE_DIR}/include)
+
+
+# 将当前目录及子目录下所有的 .h 文件添加到 HEADER_FILES 变量中
+file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+
+# 创建一个空的变量来存储包含目录
+set(INCLUDE_DIRS "")
+
+# 对于每个头文件
+foreach(HEADER ${HEADER_FILES})
+    # 获取该头文件的目录
+    get_filename_component(DIR ${HEADER} DIRECTORY)
+    # 将目录添加到包含目录列表中
+    set(INCLUDE_DIRS ${INCLUDE_DIRS} ${DIR})
+endforeach()
+
+# 删除重复的目录
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+
+# 将这些目录添加到包含目录中
+include_directories(${INCLUDE_DIRS})
 
 
 file(GLOB_RECURSE CPP_FILES "src/*.cpp")
