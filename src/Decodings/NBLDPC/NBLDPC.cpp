@@ -7,7 +7,7 @@
 #include <cstring>
 #include "NBTools.h"
 
-void NBLDPC::initialize(const int N, const int K, const int GF, const int n_cv, const int n_vc)
+NBLDPC::NBLDPC(const int N, const int K, const int GF, const int n_cv, const int n_vc)
 {
     code = new NBLDPCCode();
     table = new NBLDPCTable();
@@ -30,6 +30,57 @@ void NBLDPC::initialize(const int N, const int K, const int GF, const int n_cv, 
     table->LoadTable(GF, code->logGF);
     decoder->AllocateDecoder(code, n_cv, n_vc);
     GaussianElimination(code, table);
+
+    NBIN = new int *[code->N];
+    NBIN[0] = new int[code->N * code->GF];
+    for (int n = 1; n < code->N; ++n) NBIN[n] = NBIN[0] + n * code->GF;
+
+    KBIN = new int *[code->K];
+    KBIN[0] = new int[code->K * code->GF];
+    for (int k = 1; k < code->K; ++k) KBIN[k] = KBIN[0] + k * code->GF;
+
+    NSYM = new int[code->N];
+    KSYM = new int[code->K];
+
+    codedBits = NBIN[0];
+    infoBits = KBIN[0];
+
+    codeWords = new int[code->N];
+    decide = new int[code->N];
+
+    codeLength = code->N*code->logGF;
+    infoLength = code->K*code->logGF;
+
+}
+
+void NBLDPC::encode(){
+    for (int k = 0; k < code->K; k++)
+    {
+        for (int i = 0; i < code->logGF; i++)
+        {
+            KBIN[k][i] = rand() % 2;
+        }
+        KSYM[k] = Bin2GF(KBIN[k], code->GF, code->logGF);
+    }
+
+    Encoding(code, table, codeWords, NBIN, KSYM);
+
+}
+
+NBLDPC::~NBLDPC()
+{
+    delete code;
+    delete table;
+    delete decoder;
+
+    delete[] NBIN;
+    delete[] KBIN;
+
+    delete[] NSYM;
+    delete[] KSYM;
+
+    delete[] codeWords;
+    delete[] decide;
 }
 
 std::map<std::tuple<int, int, int>, CodeData> NBLDPC::codeDataMap = {

@@ -51,6 +51,9 @@ class ExBsPCD: public DetectionAlgorithmCD {
     public:
         ExBsPCD(int iter, int dm);  
         void bind(Detection* detection) override;
+
+        void preProcess();
+        void mainLoop(int loop);
         void execute() override;
 
         ~ExBsPCD() override;

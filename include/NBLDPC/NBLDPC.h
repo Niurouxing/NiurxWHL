@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 
+#include "baseCode.h"
 struct CodeData;
 
 
@@ -69,14 +70,26 @@ public:
     ~NBLDPCDecoder();
 };
 
-class NBLDPC
+class NBLDPC : public BaseCode
 {
 public:
     NBLDPCCode *code;
     NBLDPCTable *table;
     NBLDPCDecoder *decoder;
 
-    void initialize(const int N = 96, const int K = 48, const int GF = 256, const int n_cv = 20, const int n_vc = 20);
+    int** NBIN;
+    int** KBIN;
+    int * NSYM;
+    int * KSYM;
+
+    int * codeWords;
+    int * decide;
+
+
+    NBLDPC(const int N = 96, const int K = 48, const int GF = 256, const int n_cv = 20, const int n_vc = 20);
+    ~NBLDPC();
 
     static std::map<std::tuple<int, int, int>, CodeData> codeDataMap;
+
+    void encode() override;
 };

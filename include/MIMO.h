@@ -1,19 +1,23 @@
-// #pragma once
+#pragma once
 
-// #include <vector>
-// class Detection;
+#include <vector>
+class BaseCode;
+class Detection;
 
+// the class governing the MIMO system, including the detections and decodings
+class MIMO
+{
+public:
+    std::vector<Detection *> detections;
+    BaseCode * code;
 
-// // the class governing the MIMO system, including the detections and decodings
-// class MIMO{
-//     private:
-//         static std::vector<Detection*> detections;
+    int blockNum;
 
-//     public:
-//         static void addDetection(bool isComplex, int TxAntNum, int RxAntNum, int ModType, double SNRdB);
+    static MIMO * getMIMO();
 
+    void addCode(BaseCode * baseCode);
 
-        
+    void addDetection(bool isComplex, int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
-
-// };
+    void generate();
+}; 

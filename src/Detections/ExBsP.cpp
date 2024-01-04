@@ -37,28 +37,23 @@ void ExBsPCD::bind(Detection *detection)
 {
     DetectionAlgorithmCD::bind(detection);
 
-    HtH = new std::complex<double> [TxAntNum * TxAntNum];
+    HtH = new std::complex<double>[TxAntNum * TxAntNum];
 
-
-    HtHInv = new std::complex<double> [TxAntNum * TxAntNum];
+    HtHInv = new std::complex<double>[TxAntNum * TxAntNum];
 
     HtR = new std::complex<double>[TxAntNum];
 
     choleskyInv = new CholeskyInv(TxAntNum, true);
 
-    gamma = new double [TxAntNum * ConSize];
+    gamma = new double[TxAntNum * ConSize];
 
+    alpha = new double[TxAntNum * RxAntNum * ConSize];
 
-    alpha = new double [TxAntNum * RxAntNum * ConSize];
+    beta = new double[RxAntNum * TxAntNum * ConSize];
 
-    beta = new double [RxAntNum * TxAntNum * ConSize];
+    Px = new double[TxAntNum * RxAntNum * ConSize];
 
-
-    Px = new double [TxAntNum * RxAntNum * ConSize];
-
-
-    sIndex = new int [TxAntNum * RxAntNum * dm];
-
+    sIndex = new int[TxAntNum * RxAntNum * dm];
 
     sMean = new std::complex<double>[TxAntNum];
     // sVar = new double[TxAntNum];
@@ -105,10 +100,8 @@ ExBsPCD::~ExBsPCD()
     delete[] precomputedHCons;
 }
 
-
-void ExBsPCD::execute()
+void ExBsPCD::preProcess()
 {
-
     MatrixTransposeMultiplySelf(H, RxAntNum, TxAntNum, HtH);
 
     for (int i = 0; i < TxAntNum; i++)
@@ -152,7 +145,7 @@ void ExBsPCD::execute()
         for (int j = 0; j < RxAntNum; j++)
         {
             std::copy_n(&gamma[i * ConSize], ConSize, &alpha[(i * RxAntNum + j) * ConSize]);
-            
+
             Px[(i * RxAntNum + j) * ConSize + bestIndex] = 1;
         }
 
@@ -162,7 +155,6 @@ void ExBsPCD::execute()
             std::copy_n(minkRes, dm, &sIndex[(i * RxAntNum + j) * dm]);
         }
     }
-
     // precompute H * ConsComplex
     for (int j = 0; j < RxAntNum; j++)
     {
@@ -174,9 +166,13 @@ void ExBsPCD::execute()
             }
         }
     }
+}
+
+void ExBsPCD::mainLoop(int loop)
+{
 
     // iteration
-    for (int L = 0; L < iter; L++)
+    for (int L = 0; L < loop; L++)
     {
         for (int j = 0; j < RxAntNum; j++)
         {
@@ -257,6 +253,12 @@ void ExBsPCD::execute()
             }
         }
     }
+}
+
+void ExBsPCD::execute()
+{
+    preProcess();
+    mainLoop(iter);
 
     // symbolsToBits
     for (int i = 0; i < TxAntNum; i++)

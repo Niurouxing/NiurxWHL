@@ -54,9 +54,17 @@ void Detection::generate()
     generateRxSignalsWithNoise();
 }
 
+void Detection::generate(int * bits)
+{
+    generateChannel();
+    generateTxSignals(bits);
+    generateRxSignalsWithNoise();
+}
+
 Detection::~Detection()
 {
     delete[] TxBits;
+    delete[] TxIndice;
 }
 
 DetectionRD::DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) : Detection(TxAntNum, RxAntNum, ModType, SNRdB)
@@ -97,6 +105,7 @@ DetectionRD::DetectionRD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) 
         break;
     }
 
+    this->TxIndice = new int[TxAntNum2];
     this->TxSymbols = new double[TxAntNum2];
     this->RxSymbols = new double[RxAntNum2];
 
@@ -132,11 +141,30 @@ void DetectionRD::generateTxSignals()
     for (int i = 0; i < TxAntNum2; i++)
     {
         index = randomInt(rng1);
+        TxIndice[i] = index;
         TxSymbols[i] = Cons[index];
         for (int b = 0; b < bitLength; b++)
         {
             TxBits[i * bitLength + b] = bitCons[index * bitLength + b];
         }
+    }
+}
+
+void DetectionRD::generateTxSignals(int * bits)
+{
+
+    static int index;
+
+    memcpy(TxBits, bits, sizeof(int) * TxAntNum2 * bitLength);
+    for (int i = 0; i < TxAntNum2; i++)
+    {
+        index = 0;
+        for (int b = 0; b < bitLength; b++)
+        {
+            index += bits[i * bitLength + b] * std::pow(2, b);
+        }
+        TxSymbols[i] = Cons[index];
+        TxIndice[i] = index;
     }
 }
 
@@ -206,7 +234,7 @@ DetectionCD::DetectionCD(int TxAntNum, int RxAntNum, int ModType, double SNRdB) 
         break;
     }
 
-    this->TxIndiceCD = new int[TxAntNum];
+    this->TxIndice = new int[TxAntNum];
     this->TxSymbols = new std::complex<double>[TxAntNum];
     this->RxSymbols = new std::complex<double>[RxAntNum];
 
@@ -239,11 +267,29 @@ void DetectionCD::generateTxSignals()
     {
         index = randomInt(rng1);
         TxSymbols[i] = ConsComplex[index];
-        TxIndiceCD[i] = index;
+        TxIndice[i] = index;
         for (int b = 0; b < bitLength; b++)
         {
             TxBits[i * bitLength + b] = bitConsComplex[index * bitLength + b];
         }
+    }
+}
+
+void DetectionCD::generateTxSignals(int * bits)
+{
+
+    static int index;
+
+    memcpy(TxBits, bits, sizeof(int) * TxAntNum * bitLength);
+    for (int i = 0; i < TxAntNum; i++)
+    {
+        index = 0;
+        for (int b = 0; b < bitLength; b++)
+        {
+            index += bits[i * bitLength + b] * std::pow(2, b);
+        }
+        TxSymbols[i] = ConsComplex[index];
+        TxIndice[i] = index;
     }
 }
 
@@ -266,7 +312,6 @@ DetectionCD::~DetectionCD()
 {
     delete[] H;
 
-    delete[] TxIndiceCD;
     delete[] TxSymbols;
     delete[] RxSymbols;
 }
