@@ -74,10 +74,35 @@ int main(){
     std::cout << "Code length: " << nbldpc->codeLength << std::endl;
     std::cout << "Block number: " << mimo->blockNum << std::endl;
 
-    ExBsP_NB * exbsp = new ExBsP_NB(5,2);
-    exbsp->bind(mimo);
+    ExBsP_NB * exbsp = new ExBsP_NB(5,2 ,2);
+
 
     std::cout << "bind success" << std::endl;
+
+    mimo->generate();
+
+    std::cout << "generate success" << std::endl;
+
+    for(int i=0;i< MIMO::getMIMO()->blockNum;i++){
+        std::cout << "block " << i << std::endl;
+        for(int j=0;j< mimo->detections[i]->TxAntNum;j++){
+            for(int k=0;k< mimo->detections[i]->ModType;k++){
+                std::cout << mimo->detections[i]->TxBits[j*mimo->detections[i]->ModType+k] << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    std::cout << "Tx Symbols: " << std::endl;
+    for(int i=0;i< MIMO::getMIMO()->blockNum;i++){
+        std::cout << "block " << i << std::endl;
+        for(int j=0;j< mimo->detections[i]->TxAntNum;j++){
+
+                std::cout << dynamic_cast<DetectionCD *>(mimo->detections[i])->TxSymbols[j] << " ";
+
+            std::cout << std::endl;
+        }
+    }
 
     return 0;
 }   

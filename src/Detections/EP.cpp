@@ -5,7 +5,7 @@
 #include <Detection.h>
 
 
-EP::EP(int iter, double delta): DetectionAlgorithmRD() {
+EP::EP(double delta, int iter): DetectionAlgorithmRD() {
     this -> iter = iter;
     this -> delta = delta;
 

@@ -49,7 +49,7 @@ class ExBsPCD: public DetectionAlgorithmCD {
         std::complex<double> * precomputedHCons;
 
     public:
-        ExBsPCD(int iter, int dm);  
+        ExBsPCD(int dm = 2, int iter = 3);  
         void bind(Detection* detection) override;
 
         void preProcess();

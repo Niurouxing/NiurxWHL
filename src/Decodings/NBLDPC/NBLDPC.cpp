@@ -32,12 +32,12 @@ NBLDPC::NBLDPC(const int N, const int K, const int GF, const int n_cv, const int
     GaussianElimination(code, table);
 
     NBIN = new int *[code->N];
-    NBIN[0] = new int[code->N * code->GF];
-    for (int n = 1; n < code->N; ++n) NBIN[n] = NBIN[0] + n * code->GF;
+    NBIN[0] = new int[code->N * code->logGF];
+    for (int n = 1; n < code->N; ++n) NBIN[n] = NBIN[0] + n * code->logGF;
 
     KBIN = new int *[code->K];
-    KBIN[0] = new int[code->K * code->GF];
-    for (int k = 1; k < code->K; ++k) KBIN[k] = KBIN[0] + k * code->GF;
+    KBIN[0] = new int[code->K * code->logGF];
+    for (int k = 1; k < code->K; ++k) KBIN[k] = KBIN[0] + k * code->logGF;
 
     NSYM = new int[code->N];
     KSYM = new int[code->K];
@@ -64,6 +64,7 @@ void NBLDPC::encode(){
     }
 
     Encoding(code, table, codeWords, NBIN, KSYM);
+
 
 }
 

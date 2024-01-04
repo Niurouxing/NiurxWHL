@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <random>
-
+#include <cstring>
 #include "Cons.h"
 #include "utils.h"
 #include "Detection.h"

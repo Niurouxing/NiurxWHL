@@ -49,7 +49,7 @@ class EP: public DetectionAlgorithmRD {
 
  
     public:
-        EP(int iter, double delta);
+        EP(double delta=0.9, int iter=5);
         void bind(Detection* detection) override;
         void execute() override;
 

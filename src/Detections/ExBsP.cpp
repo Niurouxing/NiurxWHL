@@ -5,7 +5,7 @@
 #include "Detection.h"
 #include <cstring>
 
-ExBsPCD::ExBsPCD(int iter, int dm) : DetectionAlgorithmCD()
+ExBsPCD::ExBsPCD(int dm, int iter) : DetectionAlgorithmCD()
 {
     this->iter = iter;
     this->dm = dm;
