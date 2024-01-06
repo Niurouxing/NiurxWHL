@@ -29,6 +29,8 @@ NBLDPC::NBLDPC(const int N, const int K, const int GF, const int n_cv, const int
 
     table->LoadTable(GF, code->logGF);
     decoder->AllocateDecoder(code, n_cv, n_vc);
+
+
     GaussianElimination(code, table);
 
     NBIN = new int *[code->N];
@@ -53,6 +55,7 @@ NBLDPC::NBLDPC(const int N, const int K, const int GF, const int n_cv, const int
 
     codeLength = code->N * code->logGF;
     infoLength = code->K * code->logGF;
+
 }
 
 void NBLDPC::encode()
@@ -162,6 +165,9 @@ NBLDPCCode::~NBLDPCCode()
         }
         delete[] matValue;
     }
+    delete[] matUT[0];
+    delete[] matUT;
+    delete[] Perm;
 }
 
 void NBLDPCTable::LoadTable(int GF, int logGF)

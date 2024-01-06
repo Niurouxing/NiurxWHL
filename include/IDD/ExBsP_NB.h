@@ -32,4 +32,7 @@ public:
  
 
     void execute() override;
+
+    ~ExBsP_NB();
+
 };

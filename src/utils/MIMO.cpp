@@ -3,6 +3,8 @@
 #include "Detection.h"
 #include "baseCode.h"
 
+#include <iostream>
+
 MIMO *MIMO::getMIMO()
 {
     static MIMO *mimo = new MIMO();
@@ -21,8 +23,14 @@ void MIMO::addDetection(bool isComplex, int TxAntNum, int RxAntNum, int ModType,
     {
         throw std::runtime_error("No code is added to MIMO");
     }
+    // check if the code length is a multiple of bitsPerDetection
+    if (code->codeLength % bitsPerDetection != 0)
+    {
+        throw std::runtime_error("Code length is not a multiple of bitsPerDetection");
+    }
 
     blockNum = (code->codeLength + bitsPerDetection - 1) / bitsPerDetection;
+    detections.clear();
     for (int i = 0; i < blockNum; i++)
     {
         Detection *det = nullptr;
@@ -45,5 +53,13 @@ void MIMO::generate()
     for (int i = 0; i < detections.size(); i++)
     {
         detections[i]->generate(code->codedBits + i * detections[i]->TxAntNum * detections[i]->ModType);
+    }
+}
+
+MIMO::~MIMO()
+{
+    for (int i = 0; i < detections.size(); i++)
+    {
+        delete detections[i];
     }
 }

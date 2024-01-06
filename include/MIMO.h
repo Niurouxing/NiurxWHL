@@ -20,4 +20,6 @@ public:
     void addDetection(bool isComplex, int TxAntNum, int RxAntNum, int ModType, double SNRdB);
 
     void generate();
+
+    ~MIMO();
 }; 

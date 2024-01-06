@@ -103,3 +103,12 @@ void ExBsP_NB::execute()
 
     code->check();
 }
+
+
+ExBsP_NB::~ExBsP_NB()
+{
+    for (auto detectionAlg : detectionAlgorithms)
+    {
+        delete detectionAlg;
+    }
+}

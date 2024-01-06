@@ -29,12 +29,15 @@
 void GaussianElimination(NBLDPCCode *code, NBLDPCTable *table) {
     const int N = code->N;
     const int M = code->M;
+    int temp[12];
 
     code->matUT = new int *[M];
     code->matUT[0] = new int[M * N];
     for (int k = 1; k < M; k++) {
         code->matUT[k] = code->matUT[0] + k * N;
     }
+
+    memset(code->matUT[0], 0, sizeof(int) * M * N); // Replace loop for initializing matUT
 
     code->Perm = new int[N];
     std::iota(code->Perm, code->Perm + N, 0); // Replace loop for initializing Perm
@@ -75,7 +78,7 @@ void GaussianElimination(NBLDPCCode *code, NBLDPCTable *table) {
                     }
                 }
                 for (int n = m; n < N; n++) {
-                    int temp[12];
+                    
                     for (int i = 0; i < code->logGF; i++) {
                         temp[i] = table->BINGF[code->matUT[m1][n]][i] ^ table->BINGF[code->matUT[m][n]][i];
                     }
