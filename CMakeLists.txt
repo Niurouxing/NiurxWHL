@@ -14,16 +14,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(APPLE)
     find_package(OpenBLAS PATHS /opt/homebrew/opt/openblas/lib/cmake/OpenBLAS/) 
     include_directories(${OpenBLAS_INCLUDE_DIRS})
-    # link_directories(${OpenBLAS_LIBRARIES})
 endif()
 
 if(UNIX AND NOT APPLE)
-    set(OpenBLAS_DIR /home/niurx/桌面/OpenBLAS-0.3.25/lib/cmake/openblas/)
+    set(OpenBLAS_DIR /home/niurx/桌面/OpenBLAS-0.3.25/lib/cmake/openblas/) # 去手动编译openblas并指定路径
     find_package(OpenBLAS REQUIRED)
     include_directories(${OpenBLAS_INCLUDE_DIRS})
 endif()
 
-add_subdirectory(pybind11)
+if(WIN32)
+    set(OpenBLAS_DIR ${PROJECT_SOURCE_DIR}/external/openblas/lib/cmake/openblas/)
+    find_package(OpenBLAS REQUIRED)
+    include_directories( ${PROJECT_SOURCE_DIR}/external/openblas/include)
+endif()
+
+add_subdirectory(external/pybind11)
 
 
 # 将当前目录及子目录下所有的 .h 文件添加到 HEADER_FILES 变量中
@@ -70,6 +75,11 @@ endif()
 if(UNIX AND NOT APPLE)
     target_link_libraries(${MODNAME} PRIVATE ${OpenBLAS_LIBRARIES})
     target_link_libraries(MimoTest PRIVATE ${OpenBLAS_LIBRARIES})
+endif()
+
+if(WIN32)
+    target_link_libraries(${MODNAME} PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
+    target_link_libraries(MimoTest PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
 endif()
 
 
