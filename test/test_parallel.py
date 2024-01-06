@@ -9,9 +9,9 @@ from tqdm import tqdm
 import numpy as np
 
 
-TxAntNum = 4
-RxAntNum = 8
-ModType = 6
+TxAntNum = 64
+RxAntNum = 128
+ModType = 8
 
 
 startSNR=10
@@ -20,7 +20,7 @@ stepSNR=1
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 20000000
-samplesPreIter=100
+samplesPreIter=10
 
 
 def worker(queue,samples,snr):

@@ -13,12 +13,12 @@
 
 int main()
 {
-    int TxAntNum = 4;
-    int RxAntNum = 8;
-    int ModType = 6;
-    double SNRdB = 10;
-    int sample = 100;
-    static NBLDPC *nbldpc = new NBLDPC(96, 48, 64, 20, 20);
+      int TxAntNum = 64;
+    int RxAntNum = 128;
+    int ModType = 8;
+    double SNRdB = 20;
+    int sample = 10;
+    static NBLDPC *nbldpc = new NBLDPC(512, 256, 256, 20, 20);
 
     auto mimo = MIMO::getMIMO();
     mimo->addCode(nbldpc);
