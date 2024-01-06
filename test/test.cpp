@@ -7,35 +7,40 @@
 #include <iostream>
 #include <chrono>
 
- 
+#include "ExBsP_NB.h"
+#include "MIMO.h"
+#include "NBLDPC.h"
 
-int main(){
-
-    int TxAntNum = 8;
-    int RxAntNum = 16;
+int main()
+{
+      int TxAntNum = 64;
+    int RxAntNum = 128;
     int ModType = 8;
-    double SNRdB = 30;
-    int sample = 1000;
+    double SNRdB = 20;
+    int sample = 10;
+    static NBLDPC *nbldpc = new NBLDPC(512, 256, 256, 20, 20);
 
-    Detection * det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm * alg = new ExBsPCD(3, 4);
+    auto mimo = MIMO::getMIMO();
+    mimo->addCode(nbldpc);
+    mimo->addDetection(true, TxAntNum, RxAntNum, ModType, SNRdB);
 
-    alg->bind(det);
+    static ExBsP_NB *exbsp = new ExBsP_NB(5, 1, 1, 100, 0.3);
+    for (int i = 0; i < 3; i++)
+    {
+        std::cout << "i: " << i << std::endl;
+        for (int i = 0; i < sample; i++)
+        {
+            mimo->generate();
+            exbsp->execute();
+        }
 
-    auto start = std::chrono::high_resolution_clock::now();
+        auto errorBits = exbsp->getCode()->getErrorBits();
+        auto errorFrames = exbsp->getCode()->getErrorFrames();
 
-    for(int i=0;i<sample;i++){
-        det->generate();
-        alg->execute();
-        alg->check();
+        std::cout << "errorBits: " << errorBits << std::endl;
+        std::cout << "errorFrames: " << errorFrames << std::endl;
     }
-
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::cout << "Error bits: " << alg->getErrorBits() << std::endl;
-    std::cout << "Error frames: " << alg->getErrorFrames() << std::endl;
-    std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
-
-
+    // delete nbldpc;
+    // delete mimo;
     return 0;
-}   
+}

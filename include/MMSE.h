@@ -13,7 +13,6 @@ class MMSE: public DetectionAlgorithmRD {
 
         double * TxSymbolsEst;
 
-        CholeskyInv * choleskyInv;
  
     public:
         MMSE();
@@ -26,13 +25,12 @@ class MMSE: public DetectionAlgorithmRD {
 
 class MMSECD: public DetectionAlgorithmCD {
     private:
-        std::complex<double> ** HtH;
-        std::complex<double> ** HtHInv;
+        std::complex<double> * HtH;
+        std::complex<double> * HtHInv;
         std::complex<double> * HtR;
 
         std::complex<double> * TxSymbolsEst;
 
-        CholeskyInv * choleskyInv;
  
     public:
         MMSECD();

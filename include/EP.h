@@ -26,23 +26,21 @@ class EP: public DetectionAlgorithmRD {
         double * h2;
         double * t;
 
-        double ** prob;
+        double * prob;
         double * sigma2_p;
 
         double * mu_p;
 
-        double ** HtH;
-        double ** HtHMod;
+        double * HtH;
+        double * HtHMod;
 
         double * HtR;
 
-        double ** Sigma_q;
+        double * Sigma_q;
 
         double * Mu_q;
 
 
- 
-        CholeskyInv * choleskyInv;
 
         // 中间变量
 
@@ -51,7 +49,7 @@ class EP: public DetectionAlgorithmRD {
 
  
     public:
-        EP(int iter, double delta);
+        EP(double delta=0.9, int iter=5);
         void bind(Detection* detection) override;
         void execute() override;
 

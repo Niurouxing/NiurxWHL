@@ -1,25 +1,19 @@
 import mimo as m
-
-
-
-TxAntNum = 8
+ 
+ 
+TxAntNum = 4
 RxAntNum = 8
-ModType = 4
-SNR=10
-samples=10000
+ModType = 6
+SNRdB = 10
+sample = 100
 
+for i in range(10):
 
-m.detectionInit(TxAntNum,RxAntNum,ModType,SNR,True)
+    errorBits,errorFrames = m.idd(TxAntNum, RxAntNum, ModType, SNRdB, sample)
 
-m.ExBsPInit(3,4)
-
-for i in range(samples):
-    m.execute()
-    newErrorBits,newErrorFrames = m.report()
-
-    print(newErrorBits,newErrorFrames)
+    print ("Error Bits: ", errorBits)
+    print ("Error Frames: ", errorFrames)
 
 
 
-
-
+                                       

@@ -41,7 +41,7 @@ class DetectionAlgorithmRD : public DetectionAlgorithm {
     protected:
         DetectionRD * detectionRD;
         int TxAntNum2, RxAntNum2;
-        double ** H;
+        double * H;
         double * RxSymbols;
         const double * Cons;
         const int * bitCons;
@@ -57,7 +57,7 @@ class DetectionAlgorithmRD : public DetectionAlgorithm {
 class DetectionAlgorithmCD : public DetectionAlgorithm {
     protected:
         DetectionCD * detectionCD;
-        std::complex<double> ** H;
+        std::complex<double> * H;
         std::complex<double> * RxSymbols;
 
         const std::complex<double> * ConsComplex;
