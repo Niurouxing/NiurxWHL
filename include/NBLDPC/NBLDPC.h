@@ -79,7 +79,7 @@ public:
 
     int** NBIN;
     int** KBIN;
-    int * NSYM;
+    // int * NSYM;
     int * KSYM;
 
     int * codeWords;
@@ -91,5 +91,7 @@ public:
 
     static std::map<std::tuple<int, int, int>, CodeData> codeDataMap;
 
-    void encode() override;
+    void encode() ;
+    void decode(int iter, int NbOper, double offset);
+ 
 };

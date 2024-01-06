@@ -5,11 +5,32 @@ BaseCode::~BaseCode()
 {
     delete[] codedBits;
     delete[] infoBits;
+    delete[] decodedBits;
 }
 
-void plainCode::encode()
+
+BaseCode::BaseCode()
 {
-    for(int i=0;i<infoLength;i++){
-        codedBits[i] = rand()%2;  
+    codedBits = nullptr;
+    infoBits = nullptr;
+    decodedBits = nullptr;
+}
+
+void BaseCode::check()
+{
+    newErrorBits = 0;
+    newErrorFrames = 0;
+    for (int i = 0; i < codeLength; i++)
+    {
+        if (codedBits[i] != decodedBits[i])
+        {
+            newErrorBits++;
+        }
     }
+    if (newErrorBits > 0)
+    {
+        newErrorFrames = 1;
+    }
+    errorBitsAll += newErrorBits;
+    errorFramesAll += newErrorFrames;
 }

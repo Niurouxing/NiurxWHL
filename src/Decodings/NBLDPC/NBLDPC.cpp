@@ -33,27 +33,30 @@ NBLDPC::NBLDPC(const int N, const int K, const int GF, const int n_cv, const int
 
     NBIN = new int *[code->N];
     NBIN[0] = new int[code->N * code->logGF];
-    for (int n = 1; n < code->N; ++n) NBIN[n] = NBIN[0] + n * code->logGF;
+    for (int n = 1; n < code->N; ++n)
+        NBIN[n] = NBIN[0] + n * code->logGF;
 
     KBIN = new int *[code->K];
     KBIN[0] = new int[code->K * code->logGF];
-    for (int k = 1; k < code->K; ++k) KBIN[k] = KBIN[0] + k * code->logGF;
+    for (int k = 1; k < code->K; ++k)
+        KBIN[k] = KBIN[0] + k * code->logGF;
 
-    NSYM = new int[code->N];
+    // NSYM = new int[code->N];
     KSYM = new int[code->K];
 
     codedBits = NBIN[0];
     infoBits = KBIN[0];
+    decodedBits = new int[code->N * code->logGF];
 
     codeWords = new int[code->N];
     decide = new int[code->N];
 
-    codeLength = code->N*code->logGF;
-    infoLength = code->K*code->logGF;
-
+    codeLength = code->N * code->logGF;
+    infoLength = code->K * code->logGF;
 }
 
-void NBLDPC::encode(){
+void NBLDPC::encode()
+{
     for (int k = 0; k < code->K; k++)
     {
         for (int i = 0; i < code->logGF; i++)
@@ -64,8 +67,11 @@ void NBLDPC::encode(){
     }
 
     Encoding(code, table, codeWords, NBIN, KSYM);
+}
 
-
+void NBLDPC::decode(int iter, int NbOper, double offset)
+{
+    EMS(code, table, decoder, NbOper, offset, iter, decide);
 }
 
 NBLDPC::~NBLDPC()
@@ -77,7 +83,7 @@ NBLDPC::~NBLDPC()
     delete[] NBIN;
     delete[] KBIN;
 
-    delete[] NSYM;
+    // delete[] NSYM;
     delete[] KSYM;
 
     delete[] codeWords;
@@ -89,7 +95,7 @@ std::map<std::tuple<int, int, int>, CodeData> NBLDPC::codeDataMap = {
     {{96, 48, 256}, N96_K48_GF256},
     {{128, 64, 256}, N128_K64_GF256},
     {{512, 256, 256}, N512_K256_GF256},
-    };
+};
 
 void NBLDPCCode::LoadCode(const CodeData &codeData)
 {
@@ -491,3 +497,4 @@ NBLDPCDecoder::~NBLDPCDecoder()
         delete[] M_CtoV_GF;
     }
 }
+

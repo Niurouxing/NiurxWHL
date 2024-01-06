@@ -9,12 +9,12 @@ from tqdm import tqdm
 import numpy as np
 
 
-TxAntNum = 32
-RxAntNum = 64
+TxAntNum = 4
+RxAntNum = 16
 ModType = 8
 
 
-startSNR=10
+startSNR=25
 endSNR=50
 stepSNR=3
 SNR=np.arange(startSNR,endSNR,stepSNR)

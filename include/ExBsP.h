@@ -16,8 +16,7 @@ class ExBsPCD: public DetectionAlgorithmCD {
         CholeskyInv * choleskyInv;
 
 
-        // alpha 2D Matrix with shape [TxAntNum][ConSize]
-        double * gamma;
+
 
         // alpha 3D Matrix with shape [TxAntNum][RxAntNum][ConSize]
         double * alpha;
@@ -49,6 +48,9 @@ class ExBsPCD: public DetectionAlgorithmCD {
         std::complex<double> * precomputedHCons;
 
     public:
+        // alpha 2D Matrix with shape [TxAntNum][ConSize]
+        double * gamma;
+
         ExBsPCD(int dm = 2, int iter = 3);  
         void bind(Detection* detection) override;
 

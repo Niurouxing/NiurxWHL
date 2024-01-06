@@ -23,6 +23,7 @@ public:
     IDDAlgorithm(int mainLoop, int detectionLoop, int decodingLoop, Args... args);
 
     virtual void execute() = 0;
+    CodeType *getCode() { return code; }
 };
 
 template <typename DetectionAlgType, typename CodeType>
@@ -60,4 +61,3 @@ IDDAlgorithm<DetectionAlgType, CodeType>::IDDAlgorithm(int mainLoop, int detecti
         detectionAlgorithms[i]->bind(mimo->detections[i]);
     }
 }
-

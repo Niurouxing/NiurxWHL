@@ -161,7 +161,7 @@ void DetectionRD::generateTxSignals(int * bits)
         index = 0;
         for (int b = 0; b < bitLength; b++)
         {
-            index += bits[i * bitLength + b] * std::pow(2, b);
+            index += bits[i * bitLength + b] * std::pow(2, bitLength - b - 1);
         }
         TxSymbols[i] = Cons[index];
         TxIndice[i] = index;
@@ -286,7 +286,7 @@ void DetectionCD::generateTxSignals(int * bits)
         index = 0;
         for (int b = 0; b < bitLength; b++)
         {
-            index += bits[i * bitLength + b] * std::pow(2, b);
+            index += bits[i * bitLength + b] * std::pow(2, bitLength - b - 1);
         }
         TxSymbols[i] = ConsComplex[index];
         TxIndice[i] = index;

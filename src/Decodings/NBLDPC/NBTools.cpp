@@ -204,7 +204,7 @@ void EMS(NBLDPCCode *code, NBLDPCTable *table, NBLDPCDecoder *decoder, int NbOpe
     }
 
     // Decoding iterations
-    for (iter = 0; iter < NbIterMax - 1; iter++) // NbIterMax=5
+    for (iter = 0; iter < NbIterMax; iter++) // NbIterMax=5
     {
 
         for (node = 0; node < code->M; node++) // Loop for the M Check nodes
@@ -251,11 +251,12 @@ void EMS(NBLDPCCode *code, NBLDPCTable *table, NBLDPCDecoder *decoder, int NbOpe
             }
 
         } // End of the node update
-        Decision(decide, decoder->APP, code->N, code->GF);
-        synd = Syndrom(code, decide, table);
-        if (synd == 0)
-            break;
+        // Decision(decide, decoder->APP, code->N, code->GF);
+        // synd = Syndrom(code, decide, table);
+        // if (synd == 0)
+        //     break;
     }
+    Decision(decide, decoder->APP, code->N, code->GF);
     return;
 }
 
@@ -565,7 +566,7 @@ int Syndrom(NBLDPCCode *code, int *decide, NBLDPCTable *tableGF)
 {
     int k, l, i;
     int synd = 0;
-    int temp[12]; // 假设code->logGF最大为12，否则需要动态分配
+    int temp[code->logGF]; // 假设code->logGF最大为12，否则需要动态分配
     
     for (k = 0; k < code->M && synd == 0; k++) // 避免synd != 0后的无效循环
     {
