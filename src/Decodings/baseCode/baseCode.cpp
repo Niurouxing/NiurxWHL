@@ -34,3 +34,9 @@ void BaseCode::check()
     errorBitsAll += newErrorBits;
     errorFramesAll += newErrorFrames;
 }
+
+void BaseCode::resetError()
+{
+    errorBitsAll = 0;
+    errorFramesAll = 0;
+}

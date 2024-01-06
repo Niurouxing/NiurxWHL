@@ -14,7 +14,7 @@ RxAntNum = 8
 ModType = 6
 
 
-startSNR=7
+startSNR=10
 endSNR=50
 stepSNR=1
 SNR=np.arange(startSNR,endSNR,stepSNR)
@@ -25,7 +25,7 @@ samplesPreIter=100
 
 def worker(queue,samples,snr):
     while True:
-        errorBits,errorFrames = m.idd(TxAntNum,RxAntNum,ModType,snr,samples)
+        errorBits,errorFrames = m.det(TxAntNum,RxAntNum,ModType,snr,samples)
         queue.put((errorBits,errorFrames))
  
 if __name__ == '__main__':
@@ -34,7 +34,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = 1
+        num_processes = os.cpu_count()
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:

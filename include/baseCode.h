@@ -26,6 +26,8 @@ public:
     int getNewErrorBits() const { return newErrorBits; }
     int getNewErrorFrames() const { return newErrorFrames; }
 
+    void resetError();
+
     virtual void check();
 
     BaseCode();

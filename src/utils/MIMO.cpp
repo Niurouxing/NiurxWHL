@@ -13,11 +13,20 @@ MIMO *MIMO::getMIMO()
 
 void MIMO::addCode(BaseCode *baseCode)
 {
+    if(code != nullptr)
+    {
+        code->resetError();
+        return;
+    }
     code = baseCode;
 }
 
 void MIMO::addDetection(bool isComplex, int TxAntNum, int RxAntNum, int ModType, double SNRdB)
 {
+    if (detections.size() != 0)
+    {
+        return;
+    }
     int bitsPerDetection = TxAntNum * ModType;
     if (code == nullptr)
     {
