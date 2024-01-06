@@ -451,17 +451,17 @@ void ElementaryStep(double *Input1, double *Input2, int *IndiceInput1, int *Indi
     // 由于数组始终是256大小，可以在函数外定义为宏以避免硬编码
     #define MAX_SIZE 256
 
-    double loc_Output[MAX_SIZE];
-    int loc_IndiceOut[MAX_SIZE];
+    static double loc_Output[MAX_SIZE];
+    static  int loc_IndiceOut[MAX_SIZE];
 
     int i, j, s;
     int nb_bubble = 8;
     int pos;
 
-    double tab_aux[MAX_SIZE][MAX_SIZE];
-    memset(tab_aux, 0, sizeof(tab_aux)); // 只需一次memset来代替两个循环
+    static double tab_aux[MAX_SIZE][MAX_SIZE];
+    // memset(tab_aux, 0, sizeof(tab_aux)); // 只需一次memset来代替两个循环
 
-    int GFvalues_already_in_Out[MAX_SIZE];
+    static int GFvalues_already_in_Out[MAX_SIZE];
     memset(GFvalues_already_in_Out, -1, sizeof(GFvalues_already_in_Out)); // 使用memset替代循环
 
     // 初始条件现在仅通过一次赋值完成
@@ -485,7 +485,7 @@ void ElementaryStep(double *Input1, double *Input2, int *IndiceInput1, int *Indi
         }
     }
 
-    double tab_comp[3][MAX_SIZE]; // Assuming that 100 can be replaced with MAX_SIZE safely
+    static double tab_comp[3][MAX_SIZE]; // Assuming that 100 can be replaced with MAX_SIZE safely
 
     // 用结构体替换表，便于排序和管理
     struct {
