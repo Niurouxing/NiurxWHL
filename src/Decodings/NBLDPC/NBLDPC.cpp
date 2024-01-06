@@ -453,6 +453,29 @@ void NBLDPCDecoder::AllocateDecoder(NBLDPCCode *code, int n_cv, int n_vc)
     intrinsic_GF[0] = new int[nbRow * nbCol];
     for (k = 1; k < nbRow; k++)
         intrinsic_GF[k] = intrinsic_GF[0] + k * nbCol;
+
+    int nbMax = n_cv;
+    int S = 2 * (code->maxRowDegree -2);
+    MatriceInter = new double*[S];
+    MatriceInterIndice = new int*[S];
+
+    MatriceInter[0] = new double[S * nbMax];
+    MatriceInterIndice[0] = new int[S * nbMax];
+    for (k = 1; k < S; k++)
+    {
+        MatriceInter[k] = MatriceInter[0] + k * nbMax;
+        MatriceInterIndice[k] = MatriceInterIndice[0] + k * nbMax;
+    }
+
+    OutForward = new double[nbMax];
+    OutBackward = new double[nbMax];
+    OutForward1 = new double[nbMax];
+    OutBackward1 = new double[nbMax];
+    OutForwardIndice = new int[nbMax];
+    OutBackwardIndice = new int[nbMax];
+    OutForwardIndice1 = new int[nbMax];
+    OutBackwardIndice1 = new int[nbMax];
+    LLR_tmp = new double[code->GF];
 }
 
 NBLDPCDecoder::~NBLDPCDecoder()
@@ -502,5 +525,52 @@ NBLDPCDecoder::~NBLDPCDecoder()
         delete[] M_CtoV_GF[0];
         delete[] M_CtoV_GF;
     }
+    if (MatriceInter != nullptr)
+    {
+        delete[] MatriceInter[0];
+        delete[] MatriceInter;
+    }
+    if (MatriceInterIndice != nullptr)
+    {
+        delete[] MatriceInterIndice[0];
+        delete[] MatriceInterIndice;
+    }
+    if (OutForward != nullptr)
+    {
+        delete[] OutForward;
+    }
+    if (OutBackward != nullptr)
+    {
+        delete[] OutBackward;
+    }
+    if (OutForward1 != nullptr)
+    {
+        delete[] OutForward1;
+    }
+    if (OutBackward1 != nullptr)
+    {
+        delete[] OutBackward1;
+    }
+    if (OutForwardIndice != nullptr)
+    {
+        delete[] OutForwardIndice;
+    }
+    if (OutBackwardIndice != nullptr)
+    {
+        delete[] OutBackwardIndice;
+    }
+    if (OutForwardIndice1 != nullptr)
+    {
+        delete[] OutForwardIndice1;
+    }
+    if (OutBackwardIndice1 != nullptr)
+    {
+        delete[] OutBackwardIndice1;
+    }
+    if (LLR_tmp != nullptr)
+    {
+        delete[] LLR_tmp;
+    }
+
 }
 

@@ -25,7 +25,7 @@ samplesPreIter=100
 
 def worker(queue,samples,snr):
     while True:
-        errorBits,errorFrames = m.det(TxAntNum,RxAntNum,ModType,snr,samples)
+        errorBits,errorFrames = m.idd(TxAntNum,RxAntNum,ModType,snr,samples)
         queue.put((errorBits,errorFrames))
  
 if __name__ == '__main__':

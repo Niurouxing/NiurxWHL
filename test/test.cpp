@@ -16,8 +16,8 @@ int main()
     int TxAntNum = 4;
     int RxAntNum = 8;
     int ModType = 6;
-    double SNRdB = 7;
-    int sample = 10;
+    double SNRdB = 10;
+    int sample = 100;
     static NBLDPC *nbldpc = new NBLDPC(96, 48, 64, 20, 20);
 
     auto mimo = MIMO::getMIMO();
@@ -25,7 +25,7 @@ int main()
     mimo->addDetection(true, TxAntNum, RxAntNum, ModType, SNRdB);
 
     static ExBsP_NB *exbsp = new ExBsP_NB(5, 1, 1, 100, 0.3);
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 3; i++)
     {
         std::cout << "i: " << i << std::endl;
         for (int i = 0; i < sample; i++)

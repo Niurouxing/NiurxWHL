@@ -4,7 +4,6 @@
 #include "baseCode.h"
 struct CodeData;
 
-
 class NBLDPCCode
 {
 public:
@@ -19,11 +18,11 @@ public:
     int *rowDegree;    /* rowDegree[i] = the i^th check node degree */
     int *columnDegree; /* columnDegree[j] = the j^th variable node degree */
     int nbBranch;      /* number of edges in the Tanner graph */
-    double rate;        /* Code rate */
+    double rate;       /* Code rate */
     int **matUT;       /* Upper Triangular form of the parity-check matrix after Gaussian elimination. matUT is used for encoding*/
     int *Perm;         /* Permutation used for Gaussian Elimination  */
 
-    int maxRowDegree;    /* maximum row degree */
+    int maxRowDegree; /* maximum row degree */
 
     void LoadCode(const CodeData &codeData);
     ~NBLDPCCode();
@@ -62,11 +61,20 @@ public:
     double **M_CtoV_LLR;    // LLR output from one Check node processor.
     int **M_CtoV_GF;        // GF index corresponding to M_VtoC_LLR.
 
+    // used in CheckPassLogEMS()
+    double **MatriceInter;
+    int **MatriceInterIndice;
+    double *OutForward;
+    double *OutBackward;
+    double *OutForward1;
+    double *OutBackward1;
+    int *OutForwardIndice;
+    int *OutBackwardIndice;
+    int *OutForwardIndice1;
+    int *OutBackwardIndice1;
+    double *LLR_tmp;
 
-
- 
-
-    void AllocateDecoder(NBLDPCCode *code, int n_cv=20, int n_vc=20);
+    void AllocateDecoder(NBLDPCCode *code, int n_cv = 20, int n_vc = 20);
     ~NBLDPCDecoder();
 };
 
@@ -77,21 +85,19 @@ public:
     NBLDPCTable *table;
     NBLDPCDecoder *decoder;
 
-    int** NBIN;
-    int** KBIN;
+    int **NBIN;
+    int **KBIN;
     // int * NSYM;
-    int * KSYM;
+    int *KSYM;
 
-    int * codeWords;
-    int * decide;
-
+    int *codeWords;
+    int *decide;
 
     NBLDPC(const int N = 96, const int K = 48, const int GF = 256, const int n_cv = 20, const int n_vc = 20);
     ~NBLDPC();
 
     static std::map<std::tuple<int, int, int>, CodeData> codeDataMap;
 
-    void encode() ;
+    void encode();
     void decode(int iter, int NbOper, double offset);
- 
 };

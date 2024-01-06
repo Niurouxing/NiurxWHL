@@ -276,30 +276,43 @@ void CheckPassLogEMS(int node, NBLDPCDecoder *decoder, NBLDPCCode *code, NBLDPCT
     const int S = 2 * (rowDegreeNode - 2);
     int Stp = 0;
 
-    double **MatriceInter = new double*[S];
-    int **MatriceInterIndice = new int*[S];
-    double *OutForward = new double[nbMax];
-    double *OutBackward = new double[nbMax];
-    double *OutForward1 = new double[nbMax];
-    double *OutBackward1 = new double[nbMax];
-    int *OutForwardIndice = new int[nbMax];
-    int *OutBackwardIndice = new int[nbMax];
-    int *OutForwardIndice1 = new int[nbMax];
-    int *OutBackwardIndice1 = new int[nbMax];
-    double LLR_tmp[code->GF];
+    // double **MatriceInter = new double*[S];
+    // int **MatriceInterIndice = new int*[S];
+    // double *OutForward = new double[nbMax];
+    // double *OutBackward = new double[nbMax];
+    // double *OutForward1 = new double[nbMax];
+    // double *OutBackward1 = new double[nbMax];
+    // int *OutForwardIndice = new int[nbMax];
+    // int *OutBackwardIndice = new int[nbMax];
+    // int *OutForwardIndice1 = new int[nbMax];
+    // int *OutBackwardIndice1 = new int[nbMax];
+    // double LLR_tmp[code->GF];
+    double **MatriceInter = decoder->MatriceInter;
+    int **MatriceInterIndice = decoder->MatriceInterIndice;
+    double *OutForward = decoder->OutForward;
+    double *OutBackward = decoder->OutBackward;
+    double *OutForward1 = decoder->OutForward1;
+    double *OutBackward1 = decoder->OutBackward1;
+    int *OutForwardIndice = decoder->OutForwardIndice;
+    int *OutBackwardIndice = decoder->OutBackwardIndice;
+    int *OutForwardIndice1 = decoder->OutForwardIndice1;
+    int *OutBackwardIndice1 = decoder->OutBackwardIndice1;
+    double *LLR_tmp = decoder->LLR_tmp;
+
 
     // Initialization
-    std::fill_n(OutForward, nbMax, 1e5);
-    std::fill_n(OutBackward, nbMax, 1e5);
-    std::fill_n(OutForwardIndice, nbMax, -1);
-    std::fill_n(OutBackwardIndice, nbMax, -1);
+    // 似乎没有必要初始化，不过还未经过valgrind测试
+    // std::fill_n(OutForward, nbMax, 1e5);
+    // std::fill_n(OutBackward, nbMax, 1e5);
+    // std::fill_n(OutForwardIndice, nbMax, -1);
+    // std::fill_n(OutBackwardIndice, nbMax, -1);
     
-    for (int i = 0; i < S; ++i) {
-        MatriceInter[i] = new double[nbMax];
-        std::fill_n(MatriceInter[i], nbMax, 1e5);
-        MatriceInterIndice[i] = new int[nbMax];
-        std::fill_n(MatriceInterIndice[i], nbMax, -1);
-    }
+    // for (int i = 0; i < S; ++i) {
+    //     // MatriceInter[i] = new double[nbMax];
+    //     std::fill_n(MatriceInter[i], nbMax, 1e5);
+    //     // MatriceInterIndice[i] = new int[nbMax];
+    //     std::fill_n(MatriceInterIndice[i], nbMax, -1);
+    // }
 
     // The following nested loops are removed and replaced with std::fill_n above
 
@@ -429,20 +442,6 @@ void CheckPassLogEMS(int node, NBLDPCDecoder *decoder, NBLDPCCode *code, NBLDPCT
             decoder->M_CtoV_LLR[t][k] = LLR_tmp[k];
         }
     }
-    for (int i = 0; i < S; ++i) {
-        delete[] MatriceInter[i];
-        delete[] MatriceInterIndice[i];
-    }
-    delete[] MatriceInter;
-    delete[] MatriceInterIndice;
-    delete[] OutForward;
-    delete[] OutBackward;
-    delete[] OutForward1;
-    delete[] OutBackward1;
-    delete[] OutForwardIndice;
-    delete[] OutBackwardIndice;
-    delete[] OutForwardIndice1;
-    delete[] OutBackwardIndice1;
 }
 
 
