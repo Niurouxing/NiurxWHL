@@ -1,12 +1,13 @@
 import os
-# os.add_dll_directory("C:/Program Files/mingw64/bin")
+os.add_dll_directory("C:/Program Files/mingw64/bin")
+os.add_dll_directory("C:/Users/Niurouxing/Desktop/NiurxWHL/external/openblas/bin")
 
 import mimo as m
 import multiprocessing
 import time
 from tqdm import tqdm
 
-import numpy as np
+ 
 
 
 TxAntNum = 64
@@ -17,7 +18,7 @@ ModType = 8
 startSNR=10
 endSNR=50
 stepSNR=1
-SNR=np.arange(startSNR,endSNR,stepSNR)
+SNR=range(startSNR,endSNR,stepSNR)
 
 target = 20000000
 samplesPreIter=10
@@ -34,7 +35,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = os.cpu_count()
+        num_processes = 4
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:

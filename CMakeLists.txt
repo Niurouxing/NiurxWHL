@@ -78,8 +78,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(WIN32)
-    target_link_libraries(${MODNAME} PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
-    target_link_libraries(MimoTest PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
+    target_link_libraries(${MODNAME}  PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
+    target_link_libraries(MimoTest  PRIVATE ${PROJECT_SOURCE_DIR}/external/openblas/bin/libopenblas.dll)
 endif()
 
 

@@ -12,7 +12,7 @@
 
 std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample)
 {
-    openblas_set_num_threads(1);
+    // openblas_set_num_threads(1);
     Detection *det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
     DetectionAlgorithm *alg = new ExBsPCD(2, 10);
 
@@ -37,7 +37,7 @@ std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, 
 std::tuple<int, int> idd(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample)
 {
 
-    openblas_set_num_threads(1);
+    // openblas_set_num_threads(1);
     static NBLDPC *nbldpc = new NBLDPC(512, 256, 256, 20, 20);
 
     auto mimo = MIMO::getMIMO();

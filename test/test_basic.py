@@ -1,9 +1,12 @@
+import os
+os.add_dll_directory("C:/Program Files/mingw64/bin")
+os.add_dll_directory("C:/Users/Niurouxing/Desktop/NiurxWHL/external/openblas/bin")
 import mimo as m
  
  
-TxAntNum = 4
-RxAntNum = 8
-ModType = 6
+TxAntNum = 64
+RxAntNum = 128
+ModType = 8
 SNRdB = 10
 sample = 100
 
