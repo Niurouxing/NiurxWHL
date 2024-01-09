@@ -11,12 +11,11 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
     this->delta = delta;
     this->alpha = alpha;
 
-    A = nullptr;
     bhat = nullptr;
     Alpha = nullptr;
-    Gamma = nullptr;
+ 
     W = nullptr;
-    b = nullptr;
+ 
     DInv = nullptr;
     ps = nullptr;
     mu = nullptr;
@@ -30,12 +29,11 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
 void EPAwNSA::bind(Detection *detection)
 {
     DetectionAlgorithmRD::bind(detection);
-    A = new double[TxAntNum2 * TxAntNum2];
     bhat = new double[TxAntNum2];
     Alpha = new double[TxAntNum2];
-    Gamma = new double[TxAntNum2];
+ 
     W = new double[TxAntNum2 * TxAntNum2];
-    b = new double[TxAntNum2];
+ 
     DInv = new double[TxAntNum2];
     ps = new double[TxAntNum2 * TxAntNum2];
     mu = new double[TxAntNum2];
@@ -48,12 +46,11 @@ void EPAwNSA::bind(Detection *detection)
 
 EPAwNSA::~EPAwNSA()
 {
-    delete[] A;
     delete[] bhat;
     delete[] Alpha;
-    delete[] Gamma;
+ 
     delete[] W;
-    delete[] b;
+ 
     delete[] DInv;
     delete[] ps;
     delete[] mu;
@@ -68,7 +65,7 @@ void EPAwNSA::execute()
 {
 
     // A = H' * H /Nv
-    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, A, NvInv);
+    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, W, NvInv);
 
     // bhat = H' * RxSymbols / Nv
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, bhat, NvInv);
@@ -77,17 +74,15 @@ void EPAwNSA::execute()
     {
         Alpha[i] = 2;
     }
-    memset(Gamma, 0, sizeof(double) * TxAntNum2);
+ 
 
     // W = A + diag(Alpha)
-    memcpy(W, A, sizeof(double) * TxAntNum2 * TxAntNum2);
     for (int i = 0; i < TxAntNum2; i++)
     {
         W[i * TxAntNum2 + i] += 2;
     }
 
-    // b = bhat + Gamma
-    memcpy(b, bhat, sizeof(double) * TxAntNum2);
+ 
 
     // DInv = 1./diag(W)
     for (int i = 0; i < TxAntNum2; i++)
@@ -108,7 +103,7 @@ void EPAwNSA::execute()
     // mu = DInv * b
     for (int i = 0; i < TxAntNum2; i++)
     {
-        Dinvb[i] = alpha * DInv[i] * b[i];
+        Dinvb[i] = alpha * DInv[i] * bhat[i];
     }
     memcpy(mu, Dinvb, sizeof(double) * TxAntNum2);
 
@@ -154,7 +149,9 @@ void EPAwNSA::execute()
         {
             for (int j = 0; j < TxAntNum2; j++)
             {
-                m[i] -= A[i * TxAntNum2 + j] * eta[j];
+                double A = W[i * TxAntNum2 + j];
+                if (i == j) A-=2;
+                m[i] -= A * eta[j];
             }
         }
 

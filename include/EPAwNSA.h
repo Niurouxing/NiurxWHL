@@ -12,12 +12,11 @@ class EPAwNSA: public DetectionAlgorithmRD {
     int NSAiter;
     int iter;
 
-    double * A;
     double * bhat;
     double * Alpha;
-    double * Gamma;
+ 
     double * W;
-    double * b;
+ 
     double * DInv;
     double * ps;
     double * mu;
