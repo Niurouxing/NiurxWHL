@@ -9,14 +9,14 @@ from tqdm import tqdm
 import numpy as np
 
 
-TxAntNum = 32
+TxAntNum = 64
 RxAntNum = 128
 ModType = 8
 
 
-startSNR=22
-endSNR=50
-stepSNR=5
+startSNR=18
+endSNR=20
+stepSNR=2
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 20000000
@@ -34,7 +34,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = os.cpu_count()
+        num_processes = 2
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:

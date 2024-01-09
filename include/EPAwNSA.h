@@ -8,6 +8,7 @@
 class EPAwNSA: public DetectionAlgorithmRD {
     private:
     double delta;
+    double alpha;
     int NSAiter;
     int iter;
 
@@ -28,7 +29,7 @@ class EPAwNSA: public DetectionAlgorithmRD {
 
  
     public:
-        EPAwNSA(double delta=0.9,int NSAiter=5,int iter=5);
+        EPAwNSA(double delta=0.9, double alpha=0.5, int NSAiter=5,int iter=5);
         void bind(Detection* detection) override;
         void execute() override;
 

@@ -4,11 +4,12 @@
 #include <cmath>
 #include <Detection.h>
 
-EPAwNSA::EPAwNSA(double delta, int NSAiter, int iter) : DetectionAlgorithmRD()
+EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionAlgorithmRD()
 {
     this->iter = iter;
     this->NSAiter = NSAiter;
     this->delta = delta;
+    this->alpha = alpha;
 
     A = nullptr;
     bhat = nullptr;
@@ -65,15 +66,12 @@ EPAwNSA::~EPAwNSA()
 
 void EPAwNSA::execute()
 {
-    double alpha = 1;
 
     // A = H' * H /Nv
     MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, A, NvInv);
-    printMatrix(A, TxAntNum2, TxAntNum2, "A");
 
     // bhat = H' * RxSymbols / Nv
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, bhat, NvInv);
-    printVector(bhat, TxAntNum2, "bhat");
 
     for (int i = 0; i < TxAntNum2; i++)
     {
@@ -87,7 +85,6 @@ void EPAwNSA::execute()
     {
         W[i * TxAntNum2 + i] += 2;
     }
-    printMatrix(W, TxAntNum2, TxAntNum2, "W");
 
     // b = bhat + Gamma
     memcpy(b, bhat, sizeof(double) * TxAntNum2);
@@ -97,7 +94,6 @@ void EPAwNSA::execute()
     {
         DInv[i] = 1.0 / W[i * TxAntNum2 + i];
     }
-    printVector(DInv, TxAntNum2, "DInv");
 
     // ps = I - DInv * W
     for (int i = 0; i < TxAntNum2; i++)
@@ -108,8 +104,6 @@ void EPAwNSA::execute()
         }
         ps[i * TxAntNum2 + i] += 1;
     }
-    printMatrix(ps, TxAntNum2, TxAntNum2, "ps");
-
 
     // mu = DInv * b
     for (int i = 0; i < TxAntNum2; i++)
@@ -117,7 +111,6 @@ void EPAwNSA::execute()
         Dinvb[i] = alpha * DInv[i] * b[i];
     }
     memcpy(mu, Dinvb, sizeof(double) * TxAntNum2);
-    printVector(mu, TxAntNum2, "mu=Dinv");
 
     for (int k = 0; k < NSAiter; k++)
     {
@@ -128,17 +121,13 @@ void EPAwNSA::execute()
             mu_new[i] += Dinvb[i];
         }
         memcpy(mu, mu_new, sizeof(double) * TxAntNum2);
-        printVector(mu, TxAntNum2, "mu");
     }
-    printVector(mu, TxAntNum2, "mu");
 
     // t_i = mu_i / (1 - DInv_i)
     for (int i = 0; i < TxAntNum2; i++)
     {
         t[i] = mu[i] / (1 - DInv[i]);
     }
-    printVector(t, TxAntNum2, "t");
-    printVector(detectionRD->TxSymbols, TxAntNum2, "TxSymbols");
 
     // main loop
     for (int loop = 0; loop < iter; loop++)
@@ -158,7 +147,6 @@ void EPAwNSA::execute()
                 }
             }
         }
-        printVector(eta, TxAntNum2, "eta");
 
         // m_i = bhat_i - \Sum_{j=1}^{TxAntNum2} A_{ij} * eta_j
         memcpy(m, bhat, sizeof(double) * TxAntNum2);
@@ -173,9 +161,9 @@ void EPAwNSA::execute()
         // t_i = m_i * W_{ii} + eta_i
         for (int i = 0; i < TxAntNum2; i++)
         {
-            t[i] = m[i] * W[i * TxAntNum2 + i] + eta[i];
+            double t_new =  m[i] / W[i * TxAntNum2 + i] + eta[i];
+            t[i] = delta * t_new + (1 - delta) * t[i];
         }
     }
-    printVector(t, TxAntNum2, "t");
     symbolsToBits(eta);
 }
