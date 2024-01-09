@@ -9,23 +9,23 @@ from tqdm import tqdm
 import numpy as np
 
 
-TxAntNum = 64
+TxAntNum = 32
 RxAntNum = 128
 ModType = 8
 
 
-startSNR=10
+startSNR=22
 endSNR=50
-stepSNR=1
+stepSNR=5
 SNR=np.arange(startSNR,endSNR,stepSNR)
 
 target = 20000000
-samplesPreIter=10
+samplesPreIter=20
 
 
 def worker(queue,samples,snr):
     while True:
-        errorBits,errorFrames = m.idd(TxAntNum,RxAntNum,ModType,snr,samples)
+        errorBits,errorFrames = m.det(TxAntNum,RxAntNum,ModType,snr,samples)
         queue.put((errorBits,errorFrames))
  
 if __name__ == '__main__':

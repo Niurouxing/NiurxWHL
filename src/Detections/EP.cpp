@@ -101,7 +101,6 @@ void EP::execute(){
     memset(Gamma_new, 0, TxAntNum2 * sizeof(double));
 
 
-
     MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, HtH, NvInv);
  
     memcpy(HtHMod, HtH, TxAntNum2 * TxAntNum2 * sizeof(double));

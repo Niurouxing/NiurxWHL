@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "Detection.h"
 #include "EP.h"
+#include "EPAwNSA.h"
 #include "ExBsP.h"
 
 #include <iostream>
@@ -13,34 +14,28 @@
 
 int main()
 {
-      int TxAntNum = 64;
-    int RxAntNum = 128;
-    int ModType = 8;
-    double SNRdB = 20;
-    int sample = 10;
-    static NBLDPC *nbldpc = new NBLDPC(512, 256, 256, 20, 20);
+    int TxAntNum = 4;
+    int RxAntNum = 64;
+    int ModType = 4;
+    double SNRdB = 25;
+    int sample = 100;
+    Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9,4, 4);
 
-    auto mimo = MIMO::getMIMO();
-    mimo->addCode(nbldpc);
-    mimo->addDetection(true, TxAntNum, RxAntNum, ModType, SNRdB);
+    alg->bind(det);
 
-    static ExBsP_NB *exbsp = new ExBsP_NB(5, 1, 1, 100, 0.3);
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < sample; i++)
     {
-        std::cout << "i: " << i << std::endl;
-        for (int i = 0; i < sample; i++)
-        {
-            mimo->generate();
-            exbsp->execute();
-        }
-
-        auto errorBits = exbsp->getCode()->getErrorBits();
-        auto errorFrames = exbsp->getCode()->getErrorFrames();
-
-        std::cout << "errorBits: " << errorBits << std::endl;
-        std::cout << "errorFrames: " << errorFrames << std::endl;
+        det->generate();
+        alg->execute();
+        alg->check();
     }
-    // delete nbldpc;
-    // delete mimo;
-    return 0;
+
+    auto errorBits = alg->getErrorBits();
+    auto errorFrames = alg->getErrorFrames();
+
+    std::cout << "EP: " << errorBits << " " << errorFrames << std::endl;
+
+    delete det;
+    delete alg;
 }

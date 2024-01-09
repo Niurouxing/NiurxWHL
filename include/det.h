@@ -2,6 +2,7 @@
 #include <tuple>
 #include "MMSE.h"
 #include "EP.h"
+#include "EPAwNSA.h"
 #include "utils.h"
 #include "Detection.h"
 #include "ExBsP.h"
@@ -13,8 +14,8 @@
 std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample)
 {
     openblas_set_num_threads(1);
-    Detection *det = new DetectionCD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm *alg = new ExBsPCD(2, 10);
+    Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9, 4, 4);
 
     alg->bind(det);
 
