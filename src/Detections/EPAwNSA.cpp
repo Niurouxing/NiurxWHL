@@ -14,7 +14,7 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
     bhat = nullptr;
     Alpha = nullptr;
  
-    W = nullptr;
+    A = nullptr;
  
     DInv = nullptr;
     ps = nullptr;
@@ -32,7 +32,7 @@ void EPAwNSA::bind(Detection *detection)
     bhat = new double[TxAntNum2];
     Alpha = new double[TxAntNum2];
  
-    W = new double[TxAntNum2 * TxAntNum2];
+    A = new double[TxAntNum2 * TxAntNum2];
  
     DInv = new double[TxAntNum2];
     ps = new double[TxAntNum2 * TxAntNum2];
@@ -49,7 +49,7 @@ EPAwNSA::~EPAwNSA()
     delete[] bhat;
     delete[] Alpha;
  
-    delete[] W;
+    delete[] A;
  
     delete[] DInv;
     delete[] ps;
@@ -65,7 +65,7 @@ void EPAwNSA::execute()
 {
 
     // A = H' * H /Nv
-    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, W, NvInv);
+    MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, A, NvInv);
 
     // bhat = H' * RxSymbols / Nv
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, bhat, NvInv);
@@ -77,17 +77,10 @@ void EPAwNSA::execute()
  
 
     // W = A + diag(Alpha)
-    for (int i = 0; i < TxAntNum2; i++)
-    {
-        W[i * TxAntNum2 + i] += 2;
-    }
-
- 
-
     // DInv = 1./diag(W)
     for (int i = 0; i < TxAntNum2; i++)
     {
-        DInv[i] = 1.0 / W[i * TxAntNum2 + i];
+        DInv[i] = 1.0 / (A[i * TxAntNum2 + i]+2);
     }
 
     // ps = I - DInv * W
@@ -95,7 +88,7 @@ void EPAwNSA::execute()
     {
         for (int j = 0; j < TxAntNum2; j++)
         {
-            ps[i * TxAntNum2 + j] = - alpha * DInv[i] * W[i * TxAntNum2 + j];
+            ps[i * TxAntNum2 + j] = - alpha * DInv[i] * A[i * TxAntNum2 + j];
         }
         ps[i * TxAntNum2 + i] += 1;
     }
@@ -121,7 +114,7 @@ void EPAwNSA::execute()
     // t_i = mu_i / (1 - DInv_i)
     for (int i = 0; i < TxAntNum2; i++)
     {
-        t[i] = mu[i] / (1 - DInv[i]);
+        t[i] = mu[i] / (1 - DInv[i]*2);
     }
 
     // main loop
@@ -143,24 +136,22 @@ void EPAwNSA::execute()
             }
         }
 
-        // m_i = bhat_i - \Sum_{j=1}^{TxAntNum2} A_{ij} * eta_j
+        // m = bhat - A * eta
         memcpy(m, bhat, sizeof(double) * TxAntNum2);
-        for (int i = 0; i < TxAntNum2; i++)
-        {
-            for (int j = 0; j < TxAntNum2; j++)
-            {
-                double A = W[i * TxAntNum2 + j];
-                if (i == j) A-=2;
-                m[i] -= A * eta[j];
-            }
-        }
+        cblas_dsymv(CblasRowMajor, CblasUpper,
+                    TxAntNum2,
+                    -1.0, A, TxAntNum2,
+                    eta, 1,
+                    1.0, m, 1);
+    
+
 
         // t_i = m_i * W_{ii} + eta_i
         for (int i = 0; i < TxAntNum2; i++)
         {
-            double t_new =  m[i] / W[i * TxAntNum2 + i] + eta[i];
+            double t_new =  m[i] / A[i * TxAntNum2 + i] + eta[i];
             t[i] = delta * t_new + (1 - delta) * t[i];
         }
     }
-    symbolsToBits(eta);
+    symbolsToBits(t);
 }

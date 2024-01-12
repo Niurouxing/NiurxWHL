@@ -15,7 +15,7 @@ class EPAwNSA: public DetectionAlgorithmRD {
     double * bhat;
     double * Alpha;
  
-    double * W;
+    double * A;
  
     double * DInv;
     double * ps;
