@@ -14,13 +14,13 @@
 
 int main()
 {
-    int TxAntNum = 64;
-    int RxAntNum = 128;
+    int TxAntNum = 32;
+    int RxAntNum = 64;
     int ModType = 4;
-    double SNRdB = 10;
-    int sample = 100;
+    double SNRdB = 12;
+    int sample = 10000;
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm *alg = new EPAwNSA(0.9,0.5,13, 7);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9, 0.5, 18, 8);
 
     alg->bind(det);
 
@@ -31,10 +31,11 @@ int main()
         alg->check();
     }
 
-    auto errorBits = alg->getErrorBits();
-    auto errorFrames = alg->getErrorFrames();
+    double errorBits = static_cast<double>(alg->getErrorBits());
+    double totalBits = static_cast<double>(TxAntNum * ModType * sample);
+    double ber = errorBits / totalBits;
 
-    std::cout << "EP: " << errorBits << " " << errorFrames << std::endl;
+    std::cout << "BER: " << ber << std::endl;
 
     delete det;
     delete alg;

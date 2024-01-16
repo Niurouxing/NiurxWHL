@@ -13,7 +13,6 @@ class EPAwNSA: public DetectionAlgorithmRD {
     int iter;
 
     double * bhat;
-    double * Alpha;
  
     double * A;
  
@@ -21,7 +20,7 @@ class EPAwNSA: public DetectionAlgorithmRD {
     double * ps;
     double * mu;
     double * mu_new;
-    double * Dinvb;
+    double * mu_0;
     double * t;
     double * eta;
     double * m;

@@ -3,6 +3,8 @@
 #include "utils.h"
 #include <cmath>
 #include <Detection.h>
+#include <fstream>
+#include <vector>
 
 EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionAlgorithmRD()
 {
@@ -12,15 +14,14 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
     this->alpha = alpha;
 
     bhat = nullptr;
-    Alpha = nullptr;
- 
+
     A = nullptr;
- 
+
     DInv = nullptr;
     ps = nullptr;
     mu = nullptr;
     mu_new = nullptr;
-    Dinvb = nullptr;
+    mu_0 = nullptr;
     t = nullptr;
     eta = nullptr;
     m = nullptr;
@@ -30,15 +31,14 @@ void EPAwNSA::bind(Detection *detection)
 {
     DetectionAlgorithmRD::bind(detection);
     bhat = new double[TxAntNum2];
-    Alpha = new double[TxAntNum2];
- 
+
     A = new double[TxAntNum2 * TxAntNum2];
- 
+
     DInv = new double[TxAntNum2];
     ps = new double[TxAntNum2 * TxAntNum2];
     mu = new double[TxAntNum2];
     mu_new = new double[TxAntNum2];
-    Dinvb = new double[TxAntNum2];
+    mu_0 = new double[TxAntNum2];
     t = new double[TxAntNum2];
     eta = new double[TxAntNum2];
     m = new double[TxAntNum2];
@@ -47,15 +47,14 @@ void EPAwNSA::bind(Detection *detection)
 EPAwNSA::~EPAwNSA()
 {
     delete[] bhat;
-    delete[] Alpha;
- 
+
     delete[] A;
- 
+
     delete[] DInv;
     delete[] ps;
     delete[] mu;
     delete[] mu_new;
-    delete[] Dinvb;
+    delete[] mu_0;
     delete[] t;
     delete[] eta;
     delete[] m;
@@ -64,23 +63,19 @@ EPAwNSA::~EPAwNSA()
 void EPAwNSA::execute()
 {
 
+
+    double Es = 2;
     // A = H' * H /Nv
     MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, A, NvInv);
 
     // bhat = H' * RxSymbols / Nv
     MatrixTransposeMultiplyVector(H, RxSymbols, RxAntNum2, TxAntNum2, bhat, NvInv);
 
-    for (int i = 0; i < TxAntNum2; i++)
-    {
-        Alpha[i] = 2;
-    }
- 
-
     // W = A + diag(Alpha)
     // DInv = 1./diag(W)
     for (int i = 0; i < TxAntNum2; i++)
     {
-        DInv[i] = 1.0 / (A[i * TxAntNum2 + i]+2);
+        DInv[i] = 1.0 / (A[i * TxAntNum2 + i] + Es);
     }
 
     // ps = I - DInv * W
@@ -88,25 +83,28 @@ void EPAwNSA::execute()
     {
         for (int j = 0; j < TxAntNum2; j++)
         {
-            ps[i * TxAntNum2 + j] = - alpha * DInv[i] * A[i * TxAntNum2 + j];
+            if (i != j)
+            {
+                ps[i * TxAntNum2 + j] = -alpha * DInv[i] * A[i * TxAntNum2 + j];
+            }
         }
-        ps[i * TxAntNum2 + i] += 1;
+        ps[i * TxAntNum2 + i] = 1 - alpha;
     }
 
-    // mu = DInv * b
+    // mu_0 = alpha * DInv * b
     for (int i = 0; i < TxAntNum2; i++)
     {
-        Dinvb[i] = alpha * DInv[i] * bhat[i];
+        mu_0[i] = alpha * DInv[i] * bhat[i];
     }
-    memcpy(mu, Dinvb, sizeof(double) * TxAntNum2);
+    memcpy(mu, mu_0, sizeof(double) * TxAntNum2);
 
     for (int k = 0; k < NSAiter; k++)
     {
-        
-        SymMatrixMultiplyVector(ps, mu, TxAntNum2, mu_new);
+
+        MatrixMultiplyVector(ps, mu, TxAntNum2, TxAntNum2, mu_new);
         for (int i = 0; i < TxAntNum2; i++)
         {
-            mu_new[i] += Dinvb[i];
+            mu_new[i] += mu_0[i];
         }
         memcpy(mu, mu_new, sizeof(double) * TxAntNum2);
     }
@@ -114,7 +112,7 @@ void EPAwNSA::execute()
     // t_i = mu_i / (1 - DInv_i)
     for (int i = 0; i < TxAntNum2; i++)
     {
-        t[i] = mu[i] / (1 - DInv[i]*2);
+        t[i] = mu[i] / (1 - DInv[i] * Es);
     }
 
     // main loop
@@ -123,14 +121,14 @@ void EPAwNSA::execute()
         // eta 为距离t最近的Cons
         for (int i = 0; i < TxAntNum2; i++)
         {
+            double minDist = std::abs(t[i] - Cons[0]);
             eta[i] = Cons[0];
-            double minDis = std::abs(t[i] - Cons[0]);
             for (int j = 1; j < ConSize; j++)
             {
-                double dis = std::abs(t[i] - Cons[j]);
-                if (dis < minDis)
+                double dist = std::abs(t[i] - Cons[j]);
+                if (dist < minDist)
                 {
-                    minDis = dis;
+                    minDist = dist;
                     eta[i] = Cons[j];
                 }
             }
@@ -143,15 +141,13 @@ void EPAwNSA::execute()
                     -1.0, A, TxAntNum2,
                     eta, 1,
                     1.0, m, 1);
-    
-
 
         // t_i = m_i * W_{ii} + eta_i
         for (int i = 0; i < TxAntNum2; i++)
         {
-            double t_new =  m[i] / A[i * TxAntNum2 + i] + eta[i];
+            double t_new = m[i] / A[i * TxAntNum2 + i] + eta[i];
             t[i] = delta * t_new + (1 - delta) * t[i];
         }
     }
-    symbolsToBits(t);
+    symbolsToBits(eta);
 }
