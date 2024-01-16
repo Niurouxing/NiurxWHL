@@ -18,7 +18,7 @@ int main()
     int RxAntNum = 64;
     int ModType = 4;
     double SNRdB = 12;
-    int sample = 10000;
+    int sample = 100000;
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
     DetectionAlgorithm *alg = new EPAwNSA(0.9, 0.5, 17, 8);
 

@@ -25,6 +25,8 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
     t = nullptr;
     eta = nullptr;
     m = nullptr;
+
+ 
 }
 
 void EPAwNSA::bind(Detection *detection)
@@ -99,25 +101,16 @@ void EPAwNSA::execute()
 
     for (int k = 0; k < NSAiter; k++)
     {
-        // 确定当前迭代应使用的输入和输出数组
-        double *input = (k % 2 == 0) ? mu : mu_new;
-        double *output = (k % 2 == 0) ? mu_new : mu;
+        double *input = (k % 2 == 0) ? mu_0 : mu_new;
+        double *output = (k % 2 == 0) ? mu_new : mu_0;
 
-        // 执行矩阵乘法
         MatrixMultiplyVector(ps, input, TxAntNum2, TxAntNum2, output);
 
-        // 添加 mu_0
-        for (int i = 0; i < TxAntNum2; i++)
-        {
-            output[i] += mu_0[i];
-        }
+        cblas_daxpy(TxAntNum2, 1.0, output, 1, mu, 1);
+
     }
 
-    // 如果迭代次数是奇数，将最终结果从 mu_new 拷贝回 mu
-    if (NSAiter % 2 != 0)
-    {
-        memcpy(mu, mu_new, sizeof(double) * TxAntNum2);
-    }
+ 
 
     // t_i = mu_i / (1 - DInv_i)
     for (int i = 0; i < TxAntNum2; i++)

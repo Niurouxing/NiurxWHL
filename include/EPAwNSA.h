@@ -25,11 +25,15 @@ class EPAwNSA: public DetectionAlgorithmRD {
     double * eta;
     double * m;
 
+    std::vector<double> alphaVec;
+    std::vector<double> accuVec;
+
  
     public:
         EPAwNSA(double delta=0.9, double alpha=0.5, int NSAiter=5,int iter=5);
         void bind(Detection* detection) override;
         void execute() override;
+ 
 
 
 ~EPAwNSA() override;
