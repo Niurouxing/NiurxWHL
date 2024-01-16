@@ -6,12 +6,11 @@
 #include <fstream>
 #include <vector>
 
-EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionAlgorithmRD()
+EPAwNSA::EPAwNSA(double delta, int NSAiter, int iter) : DetectionAlgorithmRD()
 {
     this->iter = iter;
     this->NSAiter = NSAiter;
     this->delta = delta;
-    this->alpha = alpha;
 
     bhat = nullptr;
 
@@ -26,7 +25,42 @@ EPAwNSA::EPAwNSA(double delta, double alpha, int NSAiter, int iter) : DetectionA
     eta = nullptr;
     m = nullptr;
 
+    alphaVec = std::vector<double>(TxAntNum2, 0.5);
+    accuVec = std::vector<double>(NSAiter, 1.0);
+
  
+}
+
+void EPAwNSA::setAlphaVec(std::vector<double> alphaVec)
+{   
+    // check if the size of alphaVec is equal to TxAntNum2
+    if(alphaVec.size() != TxAntNum2){
+        std::cout << "The size of alphaVec is not equal to TxAntNum2" << std::endl;
+        std::cout << "alphaVec.size() = " << alphaVec.size() << std::endl;
+        std::cout << "TxAntNum2 = " << TxAntNum2 << std::endl;
+        std::cout << "The input alphaVec is: " << std::endl;
+        for(int i = 0; i < alphaVec.size(); i++){
+            std::cout << alphaVec[i] << " ";
+        }
+        exit(1);
+    }
+    this->alphaVec = alphaVec;
+}
+
+void EPAwNSA::setAccuVec(std::vector<double> accuVec)
+{
+    // check if the size of accuVec is equal to NSAiter
+    if(accuVec.size() != NSAiter){
+        std::cout << "The size of accuVec is not equal to NSAiter" << std::endl;
+        std::cout << "accuVec.size() = " << accuVec.size() << std::endl;
+        std::cout << "NSAiter = " << NSAiter << std::endl;
+        std::cout << "The input accuVec is: " << std::endl;
+        for(int i = 0; i < accuVec.size(); i++){
+            std::cout << accuVec[i] << " ";
+        }
+        exit(1);
+    }
+    this->accuVec = accuVec;
 }
 
 void EPAwNSA::bind(Detection *detection)
@@ -86,27 +120,27 @@ void EPAwNSA::execute()
         {
             if (i != j)
             {
-                ps[i * TxAntNum2 + j] = -alpha * DInv[i] * A[i * TxAntNum2 + j];
+                ps[i * TxAntNum2 + j] = -alphaVec[i] * DInv[i] * A[i * TxAntNum2 + j];
             }
         }
-        ps[i * TxAntNum2 + i] = 1 - alpha;
+        ps[i * TxAntNum2 + i] = 1 - alphaVec[i];
     }
 
     // mu_0 = alpha * DInv * b
     for (int i = 0; i < TxAntNum2; i++)
     {
-        mu_0[i] = alpha * DInv[i] * bhat[i];
+        mu_0[i] = accuVec[0] * alphaVec[i] * DInv[i] * bhat[i];
     }
     memcpy(mu, mu_0, sizeof(double) * TxAntNum2);
 
-    for (int k = 0; k < NSAiter; k++)
+    for (int k = 1; k < NSAiter; k++)
     {
-        double *input = (k % 2 == 0) ? mu_0 : mu_new;
-        double *output = (k % 2 == 0) ? mu_new : mu_0;
+        double *input = (k % 2 == 0) ? mu_new : mu_0;
+        double *output = (k % 2 == 0) ? mu_0 : mu_new;
 
         MatrixMultiplyVector(ps, input, TxAntNum2, TxAntNum2, output);
 
-        cblas_daxpy(TxAntNum2, 1.0, output, 1, mu, 1);
+        cblas_daxpy(TxAntNum2, accuVec[k], output, 1, mu, 1);
 
     }
 

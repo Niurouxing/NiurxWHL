@@ -20,7 +20,7 @@ int main()
     double SNRdB = 12;
     int sample = 100000;
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm *alg = new EPAwNSA(0.9, 0.5, 17, 8);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9, 17, 8);
 
     alg->bind(det);
 

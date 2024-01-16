@@ -11,6 +11,7 @@ namespace py = pybind11;
 void bind_det(py::module &m) {
     m.def("det", &det, "det");
     m.def("idd", &idd, "idd");
+    m.def("EPAwNSADet", &EPAwNSADet, "EPAwNSADet");
     
 }
 

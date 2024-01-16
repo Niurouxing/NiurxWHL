@@ -1,18 +1,22 @@
 import mimo as m
  
  
-TxAntNum = 4
-RxAntNum = 8
-ModType = 6
-SNRdB = 10
-sample = 100
+TxAntNum = 32
+RxAntNum = 64
+ModType = 4
+SNRdB = 12
+sample = 1000
+beta=0.9
+loop=9
+NSAIter=18
 
-for i in range(10):
+alphaVec = [0.5] * (2 * TxAntNum)
+accuaVec = [1.0] * (NSAIter)
+ 
+errorBits,errorFrames = m.EPAwNSADet(TxAntNum, RxAntNum, ModType, SNRdB, sample,beta,NSAIter,loop,alphaVec,accuaVec)
 
-    errorBits,errorFrames = m.idd(TxAntNum, RxAntNum, ModType, SNRdB, sample)
-
-    print ("Error Bits: ", errorBits)
-    print ("Error Frames: ", errorFrames)
+print ("Error Bits: ", errorBits)
+print ("Error Frames: ", errorFrames)
 
 
 

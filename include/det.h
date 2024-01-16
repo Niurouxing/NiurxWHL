@@ -15,7 +15,7 @@ std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, 
 {
     openblas_set_num_threads(1);
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm *alg = new EPAwNSA(0.9,0.5,40,8);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9,40,8);
 
     alg->bind(det);
 
@@ -60,3 +60,31 @@ std::tuple<int, int> idd(int TxAntNum, int RxAntNum, int ModType, double SNRdB, 
 
     return std::make_tuple(errorBits, errorFrames);
 }
+
+std::tuple<int, int> EPAwNSADet(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample,double delta,int NSAiter,int iter,std::vector<double> alphaVec,std::vector<double> accuVec) 
+{
+ 
+    openblas_set_num_threads(1);
+    Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
+    EPAwNSA *alg = new EPAwNSA(delta,NSAiter,iter);
+    alg->bind(det);
+
+    alg->setAlphaVec(alphaVec);
+    alg->setAccuVec(accuVec);
+
+    for (int i = 0; i < sample; i++)
+    {
+        det->generate();
+        alg->execute();
+        alg->check();
+    }
+
+    auto errorBits = alg->getErrorBits();
+    auto errorFrames = alg->getErrorFrames();
+
+    delete det;
+    delete alg;
+
+    return std::make_tuple(errorBits, errorFrames);
+}
+ 
