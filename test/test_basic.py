@@ -1,8 +1,9 @@
 import mimo as m
  
- 
-TxAntNum = 32
-RxAntNum = 64
+from multiprocessing import Pool
+
+TxAntNum = 4
+RxAntNum = 6
 ModType = 4
 SNRdB = 12
 sample = 1000
@@ -18,6 +19,24 @@ errorBits,errorFrames = m.EPAwNSADet(TxAntNum, RxAntNum, ModType, SNRdB, sample,
 print ("Error Bits: ", errorBits)
 print ("Error Frames: ", errorFrames)
 
+# just to wrap the function into a worker function
+def work(a,b):
+    errorBits,errorFrames = m.EPAwNSADet(TxAntNum, RxAntNum, ModType, SNRdB, sample,beta,NSAIter,loop,a,b)
+    return errorBits,errorFrames
 
 
-                                       
+# multi-processing test
+
+
+p = Pool(processes=10)
+
+results = p.map(work, [(alphaVec,accuaVec)]*10)
+
+p.close()
+p.join()
+
+for errorBits,errorFrames in results:
+    print ("Error Bits: ", errorBits)
+    print ("Error Frames: ", errorFrames)
+
+
