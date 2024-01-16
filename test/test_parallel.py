@@ -6,7 +6,7 @@ import multiprocessing
 import time
 from tqdm import tqdm
 
-import numpy as np
+
 
 
 TxAntNum = 32
@@ -17,10 +17,10 @@ ModType = 4
 startSNR=12
 endSNR=32
 stepSNR=2
-SNR=np.arange(startSNR,endSNR,stepSNR)
+SNR=range(startSNR,endSNR,stepSNR)
 
 target = 20000000
-samplesPreIter=10
+samplesPreIter=1000
 
 
 def worker(queue,samples,snr):
@@ -34,7 +34,7 @@ if __name__ == '__main__':
  
 
     for snr in SNR:
-        num_processes = 4
+        num_processes = 32
         queue = multiprocessing.Queue()
         processes = [multiprocessing.Process(target=worker, args=(queue,samplesPreIter,snr)) for i in range(num_processes)]
         for process in processes:

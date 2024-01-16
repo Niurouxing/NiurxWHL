@@ -63,7 +63,6 @@ EPAwNSA::~EPAwNSA()
 void EPAwNSA::execute()
 {
 
-
     double Es = 2;
     // A = H' * H /Nv
     MatrixTransposeMultiplySelf(H, RxAntNum2, TxAntNum2, A, NvInv);
@@ -100,12 +99,23 @@ void EPAwNSA::execute()
 
     for (int k = 0; k < NSAiter; k++)
     {
+        // 确定当前迭代应使用的输入和输出数组
+        double *input = (k % 2 == 0) ? mu : mu_new;
+        double *output = (k % 2 == 0) ? mu_new : mu;
 
-        MatrixMultiplyVector(ps, mu, TxAntNum2, TxAntNum2, mu_new);
+        // 执行矩阵乘法
+        MatrixMultiplyVector(ps, input, TxAntNum2, TxAntNum2, output);
+
+        // 添加 mu_0
         for (int i = 0; i < TxAntNum2; i++)
         {
-            mu_new[i] += mu_0[i];
+            output[i] += mu_0[i];
         }
+    }
+
+    // 如果迭代次数是奇数，将最终结果从 mu_new 拷贝回 mu
+    if (NSAiter % 2 != 0)
+    {
         memcpy(mu, mu_new, sizeof(double) * TxAntNum2);
     }
 
