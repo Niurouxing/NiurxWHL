@@ -25,8 +25,7 @@ EPAwNSA::EPAwNSA(double delta, int NSAiter, int iter) : DetectionAlgorithmRD()
     eta = nullptr;
     m = nullptr;
 
-    alphaVec = std::vector<double>(TxAntNum2, 0.5);
-    accuVec = std::vector<double>(NSAiter, 1.0);
+
 
  
 }
@@ -78,6 +77,9 @@ void EPAwNSA::bind(Detection *detection)
     t = new double[TxAntNum2];
     eta = new double[TxAntNum2];
     m = new double[TxAntNum2];
+
+    alphaVec = std::vector<double>(TxAntNum2, 0.5);
+    accuVec = std::vector<double>(NSAiter, 1.0);
 }
 
 EPAwNSA::~EPAwNSA()

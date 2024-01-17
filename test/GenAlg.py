@@ -17,55 +17,19 @@ import os
 
 hyperparameters = {
     "ModType": 8,
-    "SNRdB": 20,
-    "TxAntNum": 64,
-    "RxAntNum": 128,
-    "samplesPreIter": 1000,
+    "SNRdB": 12,
+    "TxAntNum": 4,
+    "RxAntNum": 8,
+    "samplesPreIter": 1000000,
     "errorBitsTarget": 10000,
-    "pop_size": 10,
+    "pop_size": 32,
     "max_gen": 1000,
     "beta": 0.9,
     "loop": 7,
-    "NSAIter": 40,
+    "NSAIter": 10,
 }
 
 
-def scale_coordinates(matrix):
-    """
-    Scales the coordinates in the given matrix uniformly to have the same average values
-    for the horizontal and vertical coordinates.
-    """
-    # Compute the means of the horizontal and vertical coordinates
-    x_mean = np.mean(matrix[:, 0])
-    y_mean = np.mean(matrix[:, 1])
-
-    # Compute the scaling factors for the horizontal and vertical coordinates
-    x_scale = y_mean / x_mean
-    y_scale = 1.0
-
-    # Scale the coordinates in the matrix
-    scaled_matrix = np.copy(matrix)
-    scaled_matrix[:, 0] *= x_scale
-    scaled_matrix[:, 1] *= y_scale
-
-    return scaled_matrix
-
-
-def closest_to_origin(matrix):
-    """
-    Finds the point closest to the origin among all the scaled coordinates in the given matrix.
-    """
-    # Scale the coordinates uniformly
-    scaled_matrix = scale_coordinates(matrix)
-
-    # Compute the distances from the origin to each point in the scaled matrix
-    distances = np.sqrt(np.sum(np.square(scaled_matrix), axis=1))
-
-    # Find the index of the point with the smallest distance to the origin
-    min_index = np.argmin(distances)
-
-    # Return the coordinates of the closest point
-    return min_index
 
 
 def work(alphaVec, accuaVec):
@@ -91,50 +55,52 @@ class myProblem(Problem):
             n_var=2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"],
             n_obj=1,
             n_constr=0,
+            xl=-10, 
+            xu=10,
         )
+        # 创建一个类成员进程池
+        self.pool = Pool(processes=os.cpu_count())
 
     def _evaluate(self, x, out, *args, **kwargs):
-        global hyperparameters
-
         pop_size = x.shape[0]
         f = np.zeros((pop_size, 1))
 
         alphaVec = x[:, 0 : 2 * hyperparameters["TxAntNum"]]
         accuaVec = x[:, 2 * hyperparameters["TxAntNum"] :]
 
-        p = Pool(processes=10)
-        res_l = list()
+        # 使用已创建的进程池
+        results = self.pool.starmap(work, zip(alphaVec, accuaVec))
 
         for i in range(pop_size):
-            res = p.apply_async(work, args=(alphaVec[i], accuaVec[i]))
-            res_l.append(res)
-
-        p.close()
-        p.join()
-
-        for i in range(pop_size):
-            errorBits, errorFrames = res_l[i].get()
-            f[i] = errorBits 
+            errorBits, errorFrames = results[i]
+            f[i] = errorBits/hyperparameters["samplesPreIter"]/hyperparameters["ModType"]/hyperparameters["TxAntNum"]
 
         out["F"] = f
+
+    def __del__(self):
+        # 在对象被销毁时关闭进程池
+        self.pool.close()
+        self.pool.join()
 
 
 class MyCallback(Callback):
     def __init__(self) -> None:
         super().__init__()
-        self.current = np.zeros((1, 4))
+        self.log=0
 
     def notify(self, algorithm):
-        currentArg = algorithm.pop.get("X")
-        currentPer = algorithm.pop.get("F")
+        self.log+=1
+        if self.log%10==0:
+            currentArg = algorithm.pop.get("X")
+            currentPer = algorithm.pop.get("F")
 
-        # find smallest errorBits in current population
-        minIndex = np.argmin(currentPer)
-        minErrorBits = currentPer[minIndex]
-        minArg = currentArg[minIndex]
-        print("minErrorBits:", minErrorBits)
-        print("minArg:", minArg)
-        print("currentPer:", currentPer)
+            # find smallest errorBits in current population
+            minIndex = np.argmin(currentPer)
+            minErrorBits = currentPer[minIndex]
+            minArg = currentArg[minIndex]
+            print("minErrorBits:", minErrorBits)
+            print("minArg:", minArg)
+ 
 
 
 if __name__ == "__main__":
@@ -151,8 +117,8 @@ if __name__ == "__main__":
 
     # add some random noise to the initial population, +-0.1 for each element
     noise = np.random.uniform(
-        -0.1,
-        0.1,
+        -0.3,
+        0.3,
         (pop_size, 2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"]),
     )
     all_pop = all_pop + noise
