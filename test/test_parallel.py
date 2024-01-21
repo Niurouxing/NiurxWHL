@@ -14,7 +14,7 @@ RxAntNum = 128
 ModType = 8
 
 
-startSNR=12
+startSNR=20
 endSNR=32
 stepSNR=2
 SNR=range(startSNR,endSNR,stepSNR)

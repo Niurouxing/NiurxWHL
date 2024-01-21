@@ -10,13 +10,13 @@
 std::mt19937 seedInit()
 {
     std::random_device rd;
-    auto seed = rd() ^ std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    auto seed = 114514;
     std::mt19937 rng(seed);
     return rng;
 }
 
 static std::mt19937 rng1 = seedInit();
-static std::mt19937 rng2 = seedInit();
+ 
 static std::normal_distribution<double> distribution(0.0, 1.0);
 static std::normal_distribution<double> distribution_divSqrt2(0.0, std::sqrt(0.5));
 
@@ -27,7 +27,7 @@ inline double randomGaussian()
 
 inline double randomGaussian_divSqrt2()
 {
-    return distribution_divSqrt2(rng2);
+    return distribution_divSqrt2(rng1 );
 }
 
 

@@ -13,27 +13,25 @@ import multiprocessing
 from multiprocessing import Pool
 import time
 import os
-
+from pymoo.termination import get_termination
 
 hyperparameters = {
     "ModType": 8,
-    "SNRdB": 12,
-    "TxAntNum": 4,
-    "RxAntNum": 8,
-    "samplesPreIter": 1000000,
+    "SNRdB": 20 ,
+    "TxAntNum": 32,
+    "RxAntNum": 64,
+    "samplesPreIter": 10000,
     "errorBitsTarget": 10000,
-    "pop_size": 32,
+    "pop_size": 256,
     "max_gen": 1000,
     "beta": 0.9,
-    "loop": 7,
-    "NSAIter": 10,
+    "loop": 8,
+    "NSAIter": 5
+    ,
 }
 
 
-
-
 def work(alphaVec, accuaVec):
- 
     errorBits, errorFrames = m.EPAwNSADet(
         hyperparameters["TxAntNum"],
         hyperparameters["RxAntNum"],
@@ -55,8 +53,8 @@ class myProblem(Problem):
             n_var=2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"],
             n_obj=1,
             n_constr=0,
-            xl=-10, 
-            xu=10,
+            xl=-100,
+            xu=100,
         )
         # 创建一个类成员进程池
         self.pool = Pool(processes=os.cpu_count())
@@ -73,7 +71,12 @@ class myProblem(Problem):
 
         for i in range(pop_size):
             errorBits, errorFrames = results[i]
-            f[i] = errorBits/hyperparameters["samplesPreIter"]/hyperparameters["ModType"]/hyperparameters["TxAntNum"]
+            f[i] = (
+                errorBits
+                / hyperparameters["samplesPreIter"]
+                / hyperparameters["ModType"]
+                / hyperparameters["TxAntNum"]
+            )
 
         out["F"] = f
 
@@ -86,56 +89,90 @@ class myProblem(Problem):
 class MyCallback(Callback):
     def __init__(self) -> None:
         super().__init__()
-        self.log=0
+        self.log = 0
 
     def notify(self, algorithm):
-        self.log+=1
-        if self.log%10==0:
+        self.log += 1
+        if self.log % 10 == 0:
             currentArg = algorithm.pop.get("X")
             currentPer = algorithm.pop.get("F")
 
-            # find smallest errorBits in current population
             minIndex = np.argmin(currentPer)
             minErrorBits = currentPer[minIndex]
-            minArg = currentArg[minIndex]
             print("minErrorBits:", minErrorBits)
-            print("minArg:", minArg)
+
+            filename = f'pop_{hyperparameters["ModType"]}_{hyperparameters["TxAntNum"]}_{hyperparameters["RxAntNum"]}_{hyperparameters["SNRdB"]}_{hyperparameters["beta"]}_{hyperparameters["loop"]}_{hyperparameters["NSAIter"]}.txt'
+
+            # 将数组转换为逗号分隔的字符串保存
+            with open(filename, "w") as f:
+                for individual in currentArg:
+                    line = ",".join(map(str, individual))
+                    f.write(f"{line}\n")
+
+        # if the first time, just report the best performance
+        if self.log == 1:
+ 
+            currentPer = algorithm.pop.get("F")
+
+            minIndex = np.argmin(currentPer)
+            minErrorBits = currentPer[minIndex]
+            print("minErrorBits:", minErrorBits)
  
 
+def main():
+    filename = f'pop_{hyperparameters["ModType"]}_{hyperparameters["TxAntNum"]}_{hyperparameters["RxAntNum"]}_{hyperparameters["SNRdB"]}_{hyperparameters["beta"]}_{hyperparameters["loop"]}_{hyperparameters["NSAIter"]}.txt'
 
-if __name__ == "__main__":
+    if os.path.exists(filename):
+        print(
+            f"Found existing population file: {filename}. Loading as initial population."
+        )
+        with open(filename, "r") as f:
+            lines = f.readlines()
+            all_pop = np.array(
+                [list(map(float, line.strip().split(","))) for line in lines]
+            )
+    else:
+        print("No existing population file found. Generating a new initial population.")
+        pop_size = hyperparameters["pop_size"]
+
+        good_init1 = [0.5] * (2 * hyperparameters["TxAntNum"])
+        good_init2 = [1.0] * (hyperparameters["NSAIter"])
+        good_init = good_init1 + good_init2
+        all_pop = np.tile(good_init, (pop_size, 1))
+
+        # add some random noise to the initial population, +-0.1 for each element
+        noise = np.random.uniform(
+            -0.3,
+            0.3,
+            (pop_size, 2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"]),
+        )
+        all_pop = all_pop + noise
+
     myPro = myProblem()
     print("The problem has been initialized!")
     pop_size = hyperparameters["pop_size"]
     n_gen = hyperparameters["max_gen"]
 
-    good_init1 = [0.5] * (2 * hyperparameters["TxAntNum"])
-    good_init2 = [1.0] * (hyperparameters["NSAIter"])
-    good_init = good_init1 + good_init2
-    # print("good_init:",good_init)
-    all_pop = np.tile(good_init, (pop_size, 1))
-
-    # add some random noise to the initial population, +-0.1 for each element
-    noise = np.random.uniform(
-        -0.3,
-        0.3,
-        (pop_size, 2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"]),
-    )
-    all_pop = all_pop + noise
-
+    termination = get_termination("n_gen", hyperparameters["max_gen"])
     algorithm = NSGA2(
         pop_size=pop_size,
         sampling=all_pop,
         # sampling=IntegerRandomSampling(),
-        crossover=SBX(prob=0.9, eta=15, vtype=float),
+        termination=termination,
+        crossover=SBX(prob=0.9, eta=5, vtype=float),
         mutation=PM(
-            eta=20,
+            eta=5,
             vtype=float,
         ),
         eliminate_duplicates=True,
     )
 
     callback = MyCallback()
-    res = minimize(
-        myPro, algorithm, callback=callback, seed=1, verbose=True
-    )
+ 
+    res = minimize(myPro, algorithm, callback=callback, seed=1, verbose=True)
+    print("normal exit")
+
+if __name__ == "__main__":
+    while True:
+        main()
+

@@ -15,7 +15,7 @@ std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, 
 {
     openblas_set_num_threads(1);
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
-    DetectionAlgorithm *alg = new EPAwNSA(0.9,40,8);
+    DetectionAlgorithm *alg = new EPAwNSA(0.9,40,7);
 
     alg->bind(det);
 

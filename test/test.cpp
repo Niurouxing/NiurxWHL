@@ -14,11 +14,11 @@
 
 int main()
 {
-    int TxAntNum = 4;
-    int RxAntNum = 8;
+    int TxAntNum = 64;
+    int RxAntNum = 128;
     int ModType = 8;
-    double SNRdB = 12;
-    int sample = 1000000;
+    double SNRdB = 20;
+    int sample = 1000;
     Detection *det = new DetectionRD(TxAntNum, RxAntNum, ModType, SNRdB);
     EPAwNSA *alg = new EPAwNSA(0.9, 40, 7);
 
