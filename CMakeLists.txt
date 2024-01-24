@@ -66,6 +66,10 @@ target_compile_definitions(${MODNAME} PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INF
 
 add_executable(MimoTest test/test.cpp ${CPP_FILES})
 
+# generate static library 
+add_library(${MODNAME}_static  STATIC ${CPP_FILES})
+target_link_libraries(${MODNAME}_static INTERFACE ${OpenBLAS_LIBRARIES})
+
 if(APPLE)
     target_link_libraries(${MODNAME} PRIVATE ${OpenBLAS_LIBRARIES})
     target_link_libraries(MimoTest PRIVATE ${OpenBLAS_LIBRARIES})

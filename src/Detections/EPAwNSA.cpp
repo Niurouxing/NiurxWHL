@@ -15,12 +15,11 @@ EPAwNSA::EPAwNSA(double delta, int NSAiter, int iter) : DetectionAlgorithmRD()
     bhat = nullptr;
 
     A = nullptr;
-
+    momentum = nullptr;
+    grad = nullptr;
     DInv = nullptr;
-    ps = nullptr;
     mu = nullptr;
     mu_new = nullptr;
-    mu_0 = nullptr;
     t = nullptr;
     eta = nullptr;
     m = nullptr;
@@ -33,10 +32,10 @@ EPAwNSA::EPAwNSA(double delta, int NSAiter, int iter) : DetectionAlgorithmRD()
 void EPAwNSA::setAlphaVec(std::vector<double> alphaVec)
 {   
     // check if the size of alphaVec is equal to TxAntNum2
-    if(alphaVec.size() != TxAntNum2){
-        std::cout << "The size of alphaVec is not equal to TxAntNum2" << std::endl;
+    if(alphaVec.size() != NSAiter){
+        std::cout << "The size of alphaVec is not equal to NSAiter" << std::endl;
         std::cout << "alphaVec.size() = " << alphaVec.size() << std::endl;
-        std::cout << "TxAntNum2 = " << TxAntNum2 << std::endl;
+        std::cout << "NSAiter = " << NSAiter << std::endl;
         std::cout << "The input alphaVec is: " << std::endl;
         for(int i = 0; i < alphaVec.size(); i++){
             std::cout << alphaVec[i] << " ";
@@ -68,12 +67,12 @@ void EPAwNSA::bind(Detection *detection)
     bhat = new double[TxAntNum2];
 
     A = new double[TxAntNum2 * TxAntNum2];
+    momentum = new double[TxAntNum2 * TxAntNum2];
+    grad = new double[TxAntNum2 * TxAntNum2];
 
     DInv = new double[TxAntNum2];
-    ps = new double[TxAntNum2 * TxAntNum2];
     mu = new double[TxAntNum2];
     mu_new = new double[TxAntNum2];
-    mu_0 = new double[TxAntNum2];
     t = new double[TxAntNum2];
     eta = new double[TxAntNum2];
     m = new double[TxAntNum2];
@@ -87,12 +86,11 @@ EPAwNSA::~EPAwNSA()
     delete[] bhat;
 
     delete[] A;
-
+    delete[] momentum;
+    delete[] grad;
     delete[] DInv;
-    delete[] ps;
     delete[] mu;
     delete[] mu_new;
-    delete[] mu_0;
     delete[] t;
     delete[] eta;
     delete[] m;
@@ -115,38 +113,47 @@ void EPAwNSA::execute()
         DInv[i] = 1.0 / (A[i * TxAntNum2 + i] + Es);
     }
 
-    // ps = I - DInv * W
     for (int i = 0; i < TxAntNum2; i++)
     {
-        for (int j = 0; j < TxAntNum2; j++)
-        {
-            if (i != j)
-            {
-                ps[i * TxAntNum2 + j] = -alphaVec[i] * DInv[i] * A[i * TxAntNum2 + j];
-            }
+        mu[i] =   accuVec[0] * alphaVec[0] * DInv[i] * bhat[i];
+    }
+    memset(momentum, 0, sizeof(double) * TxAntNum2 * TxAntNum2);
+
+    // Nestrerov Accelerated Gradient Descent. Dynamic step size in alphaVec[k] and dynamic momentum shrinkage in accuVec[k]
+    for (int n = 1; n < NSAiter; n++)
+    {
+        // mu_new = mu - accuVec[n] * momentum
+        for(int i = 0; i < TxAntNum2; i++){
+            mu_new[i] = mu[i] - accuVec[n] * DInv[i] * momentum[i];
         }
-        ps[i * TxAntNum2 + i] = 1 - alphaVec[i];
-    }
 
-    // mu_0 = alpha * DInv * b
-    for (int i = 0; i < TxAntNum2; i++)
-    {
-        mu_0[i] = accuVec[0] * alphaVec[i] * DInv[i] * bhat[i];
-    }
-    memcpy(mu, mu_0, sizeof(double) * TxAntNum2);
+        // grad = -A * mu_new + bhat, grad:size(TxAntNum2,1)
+        memcpy(grad, bhat, sizeof(double) * TxAntNum2);
+        cblas_dsymv(CblasRowMajor, CblasUpper,
+                    TxAntNum2,
+                    -1.0, A, TxAntNum2,
+                    mu_new, 1,
+                    1.0, grad, 1);
+        
+        // momentum = accuVec[n] * momentum - alphaVec[n] * DInv .* grad
+        for (int i = 0; i < TxAntNum2; i++)
+        {
+            momentum[i] = accuVec[n] * DInv[i] *momentum[i] - alphaVec[n] * DInv[i] * grad[i];
+        }
 
-    for (int k = 1; k < NSAiter; k++)
-    {
-        double *input = (k % 2 == 0) ? mu_new : mu_0;
-        double *output = (k % 2 == 0) ? mu_0 : mu_new;
-
-        MatrixMultiplyVector(ps, input, TxAntNum2, TxAntNum2, output);
-
-        cblas_daxpy(TxAntNum2, accuVec[k], output, 1, mu, 1);
-
-    }
-
+        // mu = mu_new - momentum
+        for (int i = 0; i < TxAntNum2; i++)
+        {
+            mu[i] = mu_new[i] - momentum[i];
+        }
  
+ 
+
+        
+ 
+    }
+ 
+
 
     // t_i = mu_i / (1 - DInv_i)
     for (int i = 0; i < TxAntNum2; i++)

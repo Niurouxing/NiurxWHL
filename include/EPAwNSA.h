@@ -16,13 +16,13 @@ class EPAwNSA: public DetectionAlgorithmRD {
     double * A;
  
     double * DInv;
-    double * ps;
     double * mu;
     double * mu_new;
-    double * mu_0;
     double * t;
     double * eta;
     double * m;
+    double * momentum;
+    double * grad;
 
     std::vector<double> alphaVec;
     std::vector<double> accuVec;

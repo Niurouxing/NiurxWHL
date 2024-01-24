@@ -35,6 +35,8 @@ std::tuple<int, int> det(int TxAntNum, int RxAntNum, int ModType, double SNRdB, 
     return std::make_tuple(errorBits, errorFrames);
 }
 
+
+
 std::tuple<int, int> idd(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample)
 {
 

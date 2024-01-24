@@ -18,15 +18,15 @@ from pymoo.termination import get_termination
 hyperparameters = {
     "ModType": 8,
     "SNRdB": 20 ,
-    "TxAntNum": 32,
-    "RxAntNum": 64,
-    "samplesPreIter": 10000,
+    "TxAntNum": 64,
+    "RxAntNum": 128,
+    "samplesPreIter": 100000,
     "errorBitsTarget": 10000,
-    "pop_size": 256,
+    "pop_size": 32,
     "max_gen": 1000,
     "beta": 0.9,
     "loop": 8,
-    "NSAIter": 5
+    "NSAIter": 10
     ,
 }
 
@@ -50,7 +50,7 @@ def work(alphaVec, accuaVec):
 class myProblem(Problem):
     def __init__(self):
         super().__init__(
-            n_var=2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"],
+            n_var=2 * hyperparameters["NSAIter"],
             n_obj=1,
             n_constr=0,
             xl=-100,
@@ -63,8 +63,8 @@ class myProblem(Problem):
         pop_size = x.shape[0]
         f = np.zeros((pop_size, 1))
 
-        alphaVec = x[:, 0 : 2 * hyperparameters["TxAntNum"]]
-        accuaVec = x[:, 2 * hyperparameters["TxAntNum"] :]
+        alphaVec = x[:, 0 : hyperparameters["NSAIter"]]
+        accuaVec = x[:, hyperparameters["NSAIter"] :]
 
         # 使用已创建的进程池
         results = self.pool.starmap(work, zip(alphaVec, accuaVec))
@@ -116,6 +116,7 @@ class MyCallback(Callback):
 
             minIndex = np.argmin(currentPer)
             minErrorBits = currentPer[minIndex]
+       
             print("minErrorBits:", minErrorBits)
  
 
@@ -135,8 +136,8 @@ def main():
         print("No existing population file found. Generating a new initial population.")
         pop_size = hyperparameters["pop_size"]
 
-        good_init1 = [0.5] * (2 * hyperparameters["TxAntNum"])
-        good_init2 = [1.0] * (hyperparameters["NSAIter"])
+        good_init1 = [0.5] * (hyperparameters["NSAIter"])
+        good_init2 = [0] * (hyperparameters["NSAIter"])
         good_init = good_init1 + good_init2
         all_pop = np.tile(good_init, (pop_size, 1))
 
@@ -144,7 +145,7 @@ def main():
         noise = np.random.uniform(
             -0.3,
             0.3,
-            (pop_size, 2 * hyperparameters["TxAntNum"] + hyperparameters["NSAIter"]),
+            (pop_size, 2 *hyperparameters["NSAIter"]),
         )
         all_pop = all_pop + noise
 
@@ -159,9 +160,9 @@ def main():
         sampling=all_pop,
         # sampling=IntegerRandomSampling(),
         termination=termination,
-        crossover=SBX(prob=0.9, eta=5, vtype=float),
+        crossover=SBX(prob=0.9, eta=15, vtype=float),
         mutation=PM(
-            eta=5,
+            eta=15,
             vtype=float,
         ),
         eliminate_duplicates=True,
