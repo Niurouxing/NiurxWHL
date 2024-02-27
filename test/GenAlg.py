@@ -20,7 +20,7 @@ hyperparameters = {
     "SNRdB": 20 ,
     "TxAntNum": 64,
     "RxAntNum": 128,
-    "samplesPreIter": 100000,
+    "samplesPreIter": 20000,
     "errorBitsTarget": 10000,
     "pop_size": 32,
     "max_gen": 1000,

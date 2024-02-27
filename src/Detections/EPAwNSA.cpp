@@ -127,24 +127,24 @@ void EPAwNSA::execute()
             mu_new[i] = mu[i] - accuVec[n] * DInv[i] * momentum[i];
         }
 
-        // grad = -A * mu_new + bhat, grad:size(TxAntNum2,1)
+        // grad = A * mu_new - bhat, grad:size(TxAntNum2,1)
         memcpy(grad, bhat, sizeof(double) * TxAntNum2);
         cblas_dsymv(CblasRowMajor, CblasUpper,
                     TxAntNum2,
-                    -1.0, A, TxAntNum2,
+                    1.0, A, TxAntNum2,
                     mu_new, 1,
-                    1.0, grad, 1);
+                    -1.0, grad, 1);
         
         // momentum = accuVec[n] * momentum - alphaVec[n] * DInv .* grad
         for (int i = 0; i < TxAntNum2; i++)
         {
-            momentum[i] = accuVec[n] * DInv[i] *momentum[i] - alphaVec[n] * DInv[i] * grad[i];
+            momentum[i] =  accuVec[n] * DInv[i] *momentum[i] + alphaVec[n] * DInv[i] * grad[i];
         }
 
-        // mu = mu_new - momentum
+        // mu = mu - momentum
         for (int i = 0; i < TxAntNum2; i++)
         {
-            mu[i] = mu_new[i] - momentum[i];
+            mu[i] = mu[i] - momentum[i];
         }
  
  
