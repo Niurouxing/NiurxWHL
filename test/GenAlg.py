@@ -17,16 +17,16 @@ from pymoo.termination import get_termination
 
 hyperparameters = {
     "ModType": 8,
-    "SNRdB": 22 ,
+    "SNRdB": 20 ,
     "TxAntNum": 32,
-    "RxAntNum": 64,
-    "samplesPreIter": 100000,
+    "RxAntNum": 128,
+    "samplesPreIter": 10000,
     "errorBitsTarget": 10000,
-    "pop_size": 32,
+    "pop_size": 256,
     "max_gen": 1000,
     "beta": 0.9,
-    "loop": 8,
-    "NSAIter": 10
+    "loop": 4,
+    "NSAIter": 4
     ,
 }
 
@@ -53,8 +53,8 @@ class myProblem(Problem):
             n_var=2 * hyperparameters["NSAIter"],
             n_obj=1,
             n_constr=0,
-            xl=-200,
-            xu=200,
+            xl=np.concatenate((np.zeros(hyperparameters["NSAIter"]), np.full(hyperparameters["NSAIter"], -100))),
+            xu=np.concatenate((np.full(hyperparameters["NSAIter"], 3), np.full(hyperparameters["NSAIter"], 100))),
         )
         # 创建一个类成员进程池
         self.pool = Pool(processes=os.cpu_count())

@@ -18,21 +18,28 @@
 
 int main()
 {
-    int TxAntNum = 64;
+    int TxAntNum = 32;
     int RxAntNum = 128;
-    int ModType = 8;
-    double SNRdB = 22;
-    int sample = 10000;
+    int ModType = 6;
+    // std::vector<double> SNRdBVec =  {6,8,10,12,14};
+    std::vector<double> SNRdBVec =  {10,12,14,16,18};
+    // std::vector<double> SNRdBVec =  {14,16,18,20,22};
+    int sample = 100000;
 
-    std::vector<double> alphaVec = {0.32635631700904194,0.34260822294608356,0.36463710293423696,0.43494135528449085,0.741037241639934,1.65820034989151,6.655754002682825,0.4695309686920808,0.7765440601519576,0.42918308014071743};
-    std::vector<double> accuVec = {9.957297158885503,-22.130643039168127,-13.101448937902674,-0.16183823042648138,27.881817330280708,38.60772999554956,-1.703075055656286,55.62630399534433,47.73697181100642,97.61366981252652};
+    std::vector<double> para = {0.6065062532342977,0.42134845302385443,0.8614308486933289,1.2618686744944017,0.6309871139655454,3.9386826676319653,-44.31916665429276,22.79765821972129,0.06694902448475279,-21.606207554330886};
+    // para的前半部分是alphaVec, 后半部分是accuVec
+    std::vector<double> alphaVec =  std::vector<double>(para.begin(), para.begin() + para.size() / 2);
+    std::vector<double> accuVec =  std::vector<double>(para.begin() + para.size() / 2, para.end());
 
-    // std::tuple<int, int> EPAwNSADet(int TxAntNum, int RxAntNum, int ModType, double SNRdB, int sample,double delta,int NSAiter,int iter,std::vector<double> alphaVec,std::vector<double> accuVec) 
+    for (double SNRdB : SNRdBVec)
+    {
+        auto start = std::chrono::system_clock::now();
+        auto [errorBits, errorFrames] = EPAwNSADet(TxAntNum, RxAntNum, ModType, SNRdB, sample,0.9,para.size()/2,4,alphaVec,accuVec);
+        auto end = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << "SNRdB: " << SNRdB << " EPAwNSA: "
+                  << "BER " << errorBits/ (double)sample  / (double)TxAntNum  / (double)ModType << " FER " << errorFrames / (double)sample << " time " << duration.count() << "ms" << std::endl;
+    }
 
-    auto start = std::chrono::system_clock::now();
-    auto [errorBits, errorFrames] = EPAwNSADet(TxAntNum, RxAntNum, ModType, SNRdB, sample,0.9,10,7,alphaVec,accuVec);
-    auto end = std::chrono::system_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "EPAwNSA: "
-              << "BER " << errorBits << std::endl;
+    return 0;
 }
